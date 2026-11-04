@@ -1,0 +1,33 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Java / Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / TypeScript
+node_modules/
+dist/
+coverage/
+
+# IDEs and OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
