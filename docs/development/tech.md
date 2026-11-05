@@ -30,7 +30,11 @@ Use these unless an ADR says otherwise:
 - Check that a library is not already covered by an existing dependency before adding one.
 - Mention every new dependency and why it is needed in the PR description.
 
-## Planned commands (not executable yet)
+## Available repository checks
+
+See [CI instructions](ci.md) for the implemented documentation checker, checker regression tests, and pinned architecture validator. GitHub execution is not verified until publication.
+
+## Planned application commands (not executable yet)
 
 Fill in as services are created. Every service must build and test with one command.
 

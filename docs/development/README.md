@@ -1,5 +1,7 @@
 # Development instructions
 
+CI: [rollout plan](ci.md) and [Accepted ADR-0014](../adr/0014-staged-github-actions-ci.md).
+
 Codex starts from the root [AGENTS.md](../../AGENTS.md), which explicitly routes it to these supporting instructions. This replaces Kiro steering metadata; these files are ordinary Markdown, not automatically discovered steering files.
 
 - [Architecture boundaries](architecture-rules.md)

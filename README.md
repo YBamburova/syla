@@ -20,6 +20,8 @@ Log WODs and lifts in seconds, track real progress (PRs, estimated 1RM, benchmar
 
 ## Development with Codex
 
+Repository checks: `python3 scripts/ci/check_repository.py` and `python3 -m unittest discover -s scripts/ci -p 'test_*.py'`. Architecture validation: `python3 scripts/ci/validate_architecture.py` (requires Java 21+ and downloads a checksum-pinned validator). See [CI instructions](docs/development/ci.md).
+
 Start with [AGENTS.md](AGENTS.md). Supporting instructions live in [docs/development](docs/development/README.md); feature specifications belong in `docs/specs/<feature>/`. No custom skills are required initially.
 
 ## Planned Stack
