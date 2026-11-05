@@ -32,4 +32,4 @@ Keep routine fixes lightweight. Do not add frameworks, infrastructure, custom sk
 
 ## Verification status
 
-No application build, test runner, or Docker Compose configuration exists yet. For documentation changes, check local links and consistency. Commands in `docs/development/tech.md` are planned until the associated services are created.
+No application build or Docker Compose configuration exists yet. Repository CI scripts now exist; use the commands in `docs/development/ci.md` for documentation/checker changes. The GitHub workflow passed on PR #1; see `docs/development/ci.md` for evidence and remaining rollout steps. Application commands in `docs/development/tech.md` are planned until the associated services are created.

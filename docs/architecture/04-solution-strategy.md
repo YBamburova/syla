@@ -28,7 +28,9 @@
 
 ## 4.3 Open Strategy Topics
 
-Accepted on 2026-11-04: [ADR-0012: Keycloak OIDC and core-managed sessions](../adr/0012-oidc-login-and-server-sessions.md) and [ADR-0013: web tooling](../adr/0013-web-application-tooling.md). The C4 target includes identity infrastructure; no services are implemented yet. Exact versions, CI design, and the documented lifecycle details remain implementation prerequisites.
+CI decision: [ADR-0014](../adr/0014-staged-github-actions-ci.md) defines staged GitHub Actions checks and one required merge gate. It is accepted; the first workflow passed on PR #1. Required-check enforcement and main-branch verification remain [rollout steps](../development/ci.md).
+
+Accepted on 2026-11-04: [ADR-0012: Keycloak OIDC and core-managed sessions](../adr/0012-oidc-login-and-server-sessions.md) and [ADR-0013: web tooling](../adr/0013-web-application-tooling.md). The C4 target includes identity infrastructure; no services are implemented yet. Exact application versions and the documented lifecycle details remain implementation prerequisites.
 
 These need their own ADRs before the related code is written:
 
