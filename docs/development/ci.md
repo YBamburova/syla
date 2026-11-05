@@ -1,6 +1,6 @@
 # CI rollout
 
-Status: [ADR-0014](../adr/0014-staged-github-actions-ci.md) accepted on 2026-11-05. The repository/architecture workflow is implemented locally and local checks pass. No GitHub run or required-check enforcement has been verified; publication and configuration remain pending authorization.
+Status: [ADR-0014](../adr/0014-staged-github-actions-ci.md) accepted on 2026-11-05. The repository/architecture workflow passes locally and on [PR #1](https://github.com/YBamburova/syla/pull/1). The [first GitHub run](https://github.com/YBamburova/syla/actions/runs/42029878021) passed Repository, Architecture, and CI gate for commit `fc011b6`. Required-check enforcement, hosted failure/recovery evidence, and main-branch execution remain unverified. The PR remains unmerged.
 
 CI means continuous integration: every PR gets automated checks before merging. A red result points to a failing check; fix the change and push another commit to the same feature branch. A green result permits review/merge but does not prove the product is complete.
 
@@ -24,12 +24,12 @@ Repository scanning covers tracked and nonignored new files, excluding `.git` an
 
 The PR title comes from GitHub's event JSON, not shell interpolation. `CI gate` requires exactly the expected dependency names and successful results; its own regression tests exercise failed/cancelled/skipped/missing/unexpected dependencies. Use fake events locally with `--event /path/to/event.json` to check PR title behavior.
 
-Local review on 2026-11-05: repository checks passed and all 10 checker tests passed using Python 3.9.6. The checksum-verified Structurizr 2026.09.19 validator passed the real workspace using Java 24.0.2 and returned exit 1 for a temporary DSL with an invalid relationship reference. Separate command-line checks confirmed gate rejection of failed/cancelled/skipped dependencies, broken-link failure and correction, and PR-event title acceptance/rejection. This verifies local behavior; the pinned Linux/Python 3.13.9/Temurin 21 environment and GitHub orchestration still need the first published run.
+Local review on 2026-11-05: repository checks passed and all 10 checker tests passed using Python 3.9.6. The checksum-verified Structurizr 2026.09.19 validator passed the real workspace using Java 24.0.2 and returned exit 1 for a temporary DSL with an invalid relationship reference. Separate command-line checks confirmed gate rejection of failed/cancelled/skipped dependencies, broken-link failure and correction, and PR-event title acceptance/rejection. The first published run also verified the pinned Ubuntu 24.04/Python 3.13.9/Temurin 21 environment and successful GitHub job aggregation.
 
 1. Completed locally: accepted ADR, reusable repository checker, pinned Structurizr validation, and checker regression tests.
 2. Completed locally: existing documentation and DSL pass; accepted historical ADRs were not rewritten.
 3. Completed locally: `.github/workflows/ci.yml` includes repository, architecture, and aggregate `CI gate` jobs. No missing-service placeholder jobs.
-4. Verify local checks, create an authorized signed-off commit/PR, and inspect GitHub results. Demonstrate a failing broken link or invalid DSL and its correction; verify the gate fails with its dependency.
+4. Completed: signed-off commit, published PR #1, and successful GitHub checks. Still pending: demonstrate a failing broken link or invalid DSL and its correction on GitHub; verify the gate fails with its dependency. Local failure/correction evidence is recorded above.
 5. After a successful run, require `CI gate` on main and retain solo-friendly PR/squash rules. Merge only with authorization. Verify the merged commit's main workflow too.
 
 ## Expand during M0/M1

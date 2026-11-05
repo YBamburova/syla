@@ -32,7 +32,7 @@ Use these unless an ADR says otherwise:
 
 ## Available repository checks
 
-See [CI instructions](ci.md) for the implemented documentation checker, checker regression tests, and pinned architecture validator. GitHub execution is not verified until publication.
+See [CI instructions](ci.md) for the implemented documentation checker, checker regression tests, and pinned architecture validator. The initial GitHub run passed on PR #1; enforcement and main-branch verification remain rollout steps.
 
 ## Planned application commands (not executable yet)
 
