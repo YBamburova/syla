@@ -10,9 +10,9 @@ Sections are written as the system grows, not all up front.
 | 2 | [Architecture Constraints](02-architecture-constraints.md) | Draft |
 | 3 | [Context and Scope](03-context-and-scope.md) | Draft |
 | 4 | [Solution Strategy](04-solution-strategy.md) | Draft |
-| 5 | Building Block View | Planned (with the first spec) |
+| 5 | [Building Block View](05-building-block-view.md) | Initial core slice |
 | 6 | Runtime View | Planned |
-| 7 | Deployment View | Planned |
+| 7 | [Deployment View](07-deployment-view.md) | Core/DB/auth; Compose run unverified |
 | 8 | Cross-cutting Concepts | Planned |
 | 9 | Architecture Decisions | See [ADR index](../adr/README.md) |
 | 10 | Quality Requirements | Planned |
@@ -21,9 +21,11 @@ Sections are written as the system grows, not all up front.
 
 Related: [Product Vision](../vision.md)
 
+Portfolio work: [System design work plan](design-work-plan.md), including milestone evolution, the first M1 runtime exercise, and verification evidence.
+
 Planning: [Architecture readiness review](review-2026-11-04.md) and [proposed milestones](../milestones.md). These are review recommendations, not accepted ADRs.
 
-The C4 workspace describes the target system. No containers are implemented yet; relationships to future consumers do not imply working runtime flows.
+The C4 workspace describes the target system. The core health service now exists; relationships to future consumers do not imply working runtime flows.
 
 ## Viewing the C4 diagrams
 

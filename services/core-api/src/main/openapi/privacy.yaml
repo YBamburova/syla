@@ -1,0 +1,236 @@
+---
+openapi: 3.0.3
+info:
+  title: Syla privacy
+  version: 1.0.0
+servers:
+- url: "/"
+paths:
+  "/api/v1/consents/training":
+    put:
+      tags:
+      - Privacy
+      operationId: setTrainingConsent
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ConsentView"
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '401':
+          description: Sign in required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '403':
+          description: Inactive account or consent required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '409':
+          description: Revision or retry conflict
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '428':
+          description: If-Match required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/ConsentInput"
+      description: Explicit permission to store private training history for the local
+        demo. Withdrawal blocks workout access; export/deletion remain available.
+    get:
+      tags:
+      - Privacy
+      operationId: getTrainingConsent
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ConsentView"
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '401':
+          description: Sign in required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '403':
+          description: Inactive account or consent required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '409':
+          description: Revision or retry conflict
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '428':
+          description: If-Match required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+  "/api/v1/privacy/export":
+    get:
+      tags:
+      - Privacy
+      operationId: exportAccount
+      responses:
+        '200':
+          description: JSON data export as a file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '401':
+          description: Sign in required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '403':
+          description: Inactive account or consent required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '409':
+          description: Revision or retry conflict
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '428':
+          description: If-Match required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+components:
+  schemas:
+    ApiProblem:
+      type: object
+      additionalProperties: false
+      required:
+      - title
+      - status
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+          maxLength: 255
+        status:
+          type: integer
+          format: int32
+          minimum: 100
+          maximum: 599
+        detail:
+          type: string
+          maxLength: 255
+        instance:
+          type: string
+          maxLength: 255
+        code:
+          type: string
+          maxLength: 255
+        fields:
+          type: array
+          items:
+            type: string
+            maxLength: 255
+          minItems: 0
+          maxItems: 100
+    ConsentInput:
+      type: object
+      additionalProperties: false
+      required:
+      - version
+      - granted
+      properties:
+        version:
+          type: string
+          enum:
+          - v1
+        granted:
+          type: boolean
+    ConsentView:
+      type: object
+      additionalProperties: false
+      required:
+      - version
+      - granted
+      - purpose
+      - recordedAt
+      properties:
+        version:
+          type: string
+          maxLength: 255
+        granted:
+          type: boolean
+        purpose:
+          type: string
+          maxLength: 200
+        recordedAt:
+          type: string
+          format: date-time
+  securitySchemes:
+    session:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+security:
+- session: []

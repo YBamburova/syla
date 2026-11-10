@@ -4,7 +4,18 @@
 
 Log WODs and lifts in seconds, track real progress (PRs, estimated 1RM, benchmark times), see Oura recovery data next to your training, and follow your community.
 
-**Status:** architecture phase. No runnable code yet.
+**Status:** M0 in progress. The Java core has private logging API code, OpenAPI contracts, and DB/auth setup; login/logging checks pass, but provider account cleanup still fails (HTTP 401); this stage is not complete M1.
+
+## Run the backend
+
+```bash
+python3 services/core-api/dev/setup_env.py
+docker compose up --build
+```
+
+This starts core, PostgreSQL/pgvector, and Keycloak. Use fictional local users. Swagger UI: `http://localhost:8080/swagger-ui/index.html`. Login: `/oauth2/authorization/keycloak`. See [setup, API, and checks](services/core-api/README.md) for user setup and limits. OpenAPI YAML generates the Java interfaces/DTOs.
+
+Build with JDK 21 and Docker: `cd services/core-api` then `./mvnw clean verify`. The full M1 UI/demo is still pending.
 
 ## Documentation
 

@@ -66,3 +66,15 @@ Keep a failed form in memory while the page remains open; do not persist it in l
 Domain tests cover normalized scores, scaling, missing versus zero, capped/completed exclusivity, and W1–W3. PostgreSQL integration tests cover atomicity, concurrent retries, revisions, owner scoping, and deletion/replay interactions. Module verification tests enforce boundaries. Browser tests cover a real save/reload/edit/delete flow and accessible errors, using the chosen tool after tooling approval. Privacy tests exercise the account lifecycle, not just endpoint happy paths.
 
 Before implementation: finalize product defaults from requirements; accept authentication/tooling/CI decisions; specify schemas/limits and movement catalog; settle idempotency expiration and deletion races; document runtime sequences and the privacy data inventory/threat model. No particular authentication provider or additional test framework is selected by this draft.
+
+## Backend implementation 2026-11-10
+
+The user chose OpenAPI YAML → generated Spring interfaces and Java record DTOs. Contracts live in `services/core-api/src/main/openapi`; generated code stays in `target`. Each module owns its generated public contract. Springdoc supplies Swagger UI; the YAML is authoritative.
+
+Accepted [ADR-0015](../../adr/0015-personal-logging-write-safety.md) supplies actor locking, UUIDv7 retry expiry, and account deletion. JPA/Hibernate stores relational ownership/date/revision metadata and versioned typed section JSONB. Flyway owns schema changes; Hibernate only validates. Native SQL is limited to bound identity registration and indexed cursor queries within the owning schema. No cross-schema joins/foreign keys exist.
+
+Account provisioning happens only after verified OIDC login, using issuer/subject. Every service query takes the actor lock and checks current state. Workouts then query the public consent API. Identity emits a synchronous deletion event; privacy and workouts purge their own rows in that transaction. Provider cleanup follows commit and retries while DELETING. A 30-day minimal identity tombstone blocks old sessions. Export uses a synchronous in-memory query event so privacy does not depend back on workouts and create a module cycle.
+
+CRUD, consent, export, and account routes are described in the YAML and [core README](../../../services/core-api/README.md). Strength/AMRAP/For Time are typed, with original prescription and actual work kept separate. JSON has a 256-KiB limit; names, input values, notes, and tokens are omitted from error diagnostics. There are no external training consumers yet; internal metadata events have no durable derived-data subscriber or RabbitMQ externalization.
+
+The backend is under final checks. It does not complete M1: React, browser flows, logging-time measurement, and public-launch privacy/auth policy remain open.

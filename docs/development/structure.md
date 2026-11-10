@@ -1,6 +1,6 @@
 # Repository Structure
 
-Planned monorepo layout. Currently only documentation and agent instructions exist; service directories and commands below are targets, not implemented features.
+Target monorepo layout. `services/core-api`, CI scripts, and core-only Compose now exist. Other services, web, infra, and the full stack below remain planned.
 
 ```
 syla/

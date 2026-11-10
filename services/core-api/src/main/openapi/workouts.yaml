@@ -1,0 +1,705 @@
+---
+openapi: 3.0.3
+info:
+  title: Syla private workouts
+  version: 1.0.0
+servers:
+- url: "/"
+paths:
+  "/api/v1/workouts":
+    post:
+      tags:
+      - Workouts
+      operationId: createWorkout
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/WorkoutView"
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '401':
+          description: Sign in required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '403':
+          description: Inactive account or consent required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '409':
+          description: Revision or retry conflict
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '428':
+          description: If-Match required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/WorkoutInput"
+      description: Create one private workout. Idempotency-Key must be UUIDv7, valid
+        for 24h. Send X-XSRF-TOKEN from /api/v1/csrf.
+    get:
+      tags:
+      - Workouts
+      operationId: listWorkouts
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/WorkoutPage"
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '401':
+          description: Sign in required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '403':
+          description: Inactive account or consent required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '409':
+          description: Revision or retry conflict
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '428':
+          description: If-Match required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          maxLength: 200
+  "/api/v1/workouts/{id}":
+    get:
+      tags:
+      - Workouts
+      operationId: getWorkout
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/WorkoutView"
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '401':
+          description: Sign in required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '403':
+          description: Inactive account or consent required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '409':
+          description: Revision or retry conflict
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '428':
+          description: If-Match required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    put:
+      tags:
+      - Workouts
+      operationId: replaceWorkout
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/WorkoutView"
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '401':
+          description: Sign in required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '403':
+          description: Inactive account or consent required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '409':
+          description: Revision or retry conflict
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '428':
+          description: If-Match required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: If-Match
+        in: header
+        required: false
+        schema:
+          type: string
+          pattern: ^"[0-9]+"$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/WorkoutInput"
+    delete:
+      tags:
+      - Workouts
+      operationId: deleteWorkout
+      responses:
+        '204':
+          description: Deleted. Repeated delete returns the same 404 as other missing/nonowned
+            IDs.
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '401':
+          description: Sign in required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '403':
+          description: Inactive account or consent required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '409':
+          description: Revision or retry conflict
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '428':
+          description: If-Match required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: If-Match
+        in: header
+        required: false
+        schema:
+          type: string
+          pattern: ^"[0-9]+"$
+components:
+  schemas:
+    ApiProblem:
+      type: object
+      additionalProperties: false
+      required:
+      - title
+      - status
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+          maxLength: 255
+        status:
+          type: integer
+          format: int32
+          minimum: 100
+          maximum: 599
+        detail:
+          type: string
+          maxLength: 255
+        instance:
+          type: string
+          maxLength: 255
+        code:
+          type: string
+          maxLength: 255
+        fields:
+          type: array
+          items:
+            type: string
+            maxLength: 255
+          minItems: 0
+          maxItems: 100
+    Load:
+      type: object
+      additionalProperties: false
+      required:
+      - kind
+      properties:
+        kind:
+          type: string
+          enum:
+          - BODYWEIGHT
+          - EXTERNAL
+        amount:
+          type: number
+          minimum: 0
+          maximum: 10000
+          multipleOf: 0.001
+        unit:
+          type: string
+          enum:
+          - KG
+          - LB
+        basis:
+          type: string
+          enum:
+          - TOTAL_BARBELL
+    Movement:
+      type: string
+      enum:
+      - back-squat
+      - thruster
+      - pull-up
+      - push-up
+      - air-squat
+      - ring-row
+    ScoreState:
+      type: string
+      enum:
+      - SCORED
+      - UNSCORED
+    Scaling:
+      type: string
+      enum:
+      - UNSPECIFIED
+      - RX
+      - SCALED
+    WorkItem:
+      type: object
+      additionalProperties: false
+      required:
+      - occurrenceId
+      - movement
+      - reps
+      - load
+      properties:
+        occurrenceId:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: "^[a-zA-Z0-9-]+$"
+        movement:
+          "$ref": "#/components/schemas/Movement"
+        reps:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 10000
+        load:
+          "$ref": "#/components/schemas/Load"
+    Round:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            "$ref": "#/components/schemas/WorkItem"
+          minItems: 1
+          maxItems: 64
+    ActualSet:
+      type: object
+      additionalProperties: false
+      required:
+      - setIndex
+      - reps
+      - load
+      properties:
+        setIndex:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 99
+        reps:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 10000
+        load:
+          "$ref": "#/components/schemas/Load"
+    StrengthSection:
+      type: object
+      additionalProperties: false
+      required:
+      - format
+      - scoreState
+      - scaling
+      - movement
+      - sets
+      - actualSets
+      properties:
+        format:
+          type: string
+          enum:
+          - STRENGTH
+        scoreState:
+          "$ref": "#/components/schemas/ScoreState"
+        scaling:
+          "$ref": "#/components/schemas/Scaling"
+        movement:
+          "$ref": "#/components/schemas/Movement"
+        sets:
+          type: array
+          items:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 10000
+          minItems: 1
+          maxItems: 100
+        actualSets:
+          type: array
+          items:
+            "$ref": "#/components/schemas/ActualSet"
+          minItems: 0
+          maxItems: 100
+    AmrapSection:
+      type: object
+      additionalProperties: false
+      required:
+      - format
+      - scoreState
+      - scaling
+      - durationSeconds
+      - prescription
+      - actual
+      properties:
+        format:
+          type: string
+          enum:
+          - AMRAP
+        scoreState:
+          "$ref": "#/components/schemas/ScoreState"
+        scaling:
+          "$ref": "#/components/schemas/Scaling"
+        durationSeconds:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 86400
+        prescription:
+          type: array
+          items:
+            "$ref": "#/components/schemas/WorkItem"
+          minItems: 1
+          maxItems: 64
+        actual:
+          type: array
+          items:
+            "$ref": "#/components/schemas/WorkItem"
+          minItems: 1
+          maxItems: 64
+        result:
+          "$ref": "#/components/schemas/AmrapResult"
+    ForTimeSection:
+      type: object
+      additionalProperties: false
+      required:
+      - format
+      - scoreState
+      - scaling
+      - prescription
+      - actual
+      properties:
+        format:
+          type: string
+          enum:
+          - FOR_TIME
+        scoreState:
+          "$ref": "#/components/schemas/ScoreState"
+        scaling:
+          "$ref": "#/components/schemas/Scaling"
+        prescription:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Round"
+          minItems: 1
+          maxItems: 100
+        actual:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Round"
+          minItems: 1
+          maxItems: 100
+        capSeconds:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 86400
+        result:
+          "$ref": "#/components/schemas/ForTimeResult"
+    WorkoutSection:
+      oneOf:
+      - "$ref": "#/components/schemas/StrengthSection"
+      - "$ref": "#/components/schemas/AmrapSection"
+      - "$ref": "#/components/schemas/ForTimeSection"
+      discriminator:
+        propertyName: format
+        mapping:
+          STRENGTH: "#/components/schemas/StrengthSection"
+          AMRAP: "#/components/schemas/AmrapSection"
+          FOR_TIME: "#/components/schemas/ForTimeSection"
+    WorkoutInput:
+      type: object
+      additionalProperties: false
+      required:
+      - trainingDate
+      - timeZone
+      - section
+      properties:
+        trainingDate:
+          type: string
+          format: date
+        timeZone:
+          type: string
+          minLength: 1
+          maxLength: 64
+        title:
+          type: string
+          maxLength: 120
+        notes:
+          type: string
+          maxLength: 2000
+        section:
+          "$ref": "#/components/schemas/WorkoutSection"
+    WorkoutView:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - sectionId
+      - revision
+      - createdAt
+      - updatedAt
+      - workout
+      properties:
+        id:
+          type: string
+          format: uuid
+        sectionId:
+          type: string
+          format: uuid
+        revision:
+          type: integer
+          format: int64
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        workout:
+          "$ref": "#/components/schemas/WorkoutInput"
+        totalReps:
+          type: integer
+          format: int64
+          minimum: 0
+    AmrapResult:
+      type: object
+      additionalProperties: false
+      required:
+      - rounds
+      - additionalReps
+      properties:
+        rounds:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 1000000
+        additionalReps:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 1000000
+    ForTimeResult:
+      oneOf:
+      - "$ref": "#/components/schemas/CompletedResult"
+      - "$ref": "#/components/schemas/CappedResult"
+      discriminator:
+        propertyName: kind
+        mapping:
+          COMPLETED: "#/components/schemas/CompletedResult"
+          CAPPED: "#/components/schemas/CappedResult"
+    CompletedResult:
+      type: object
+      additionalProperties: false
+      required:
+      - kind
+      - elapsedSeconds
+      properties:
+        kind:
+          type: string
+          enum:
+          - COMPLETED
+        elapsedSeconds:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 86400
+    CappedResult:
+      type: object
+      additionalProperties: false
+      required:
+      - kind
+      - completedReps
+      properties:
+        kind:
+          type: string
+          enum:
+          - CAPPED
+        completedReps:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 64000000
+    WorkoutPage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            "$ref": "#/components/schemas/WorkoutView"
+          minItems: 0
+          maxItems: 100
+        nextCursor:
+          type: string
+          maxLength: 200
+  securitySchemes:
+    session:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+security:
+- session: []

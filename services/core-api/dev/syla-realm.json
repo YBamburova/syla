@@ -1,0 +1,47 @@
+{
+  "realm": "syla",
+  "enabled": true,
+  "registrationAllowed": false,
+  "sslRequired": "none",
+  "clients": [
+    {
+      "clientId": "syla-core",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "${CORE_ORIGIN}/login/oauth2/code/keycloak"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "${CORE_ORIGIN}/swagger-ui/index.html"
+      }
+    },
+    {
+      "clientId": "syla-admin",
+      "enabled": true,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "secret": "${KEYCLOAK_SERVICE_SECRET}",
+      "fullScopeAllowed": true,
+      "defaultClientScopes": [
+        "roles"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "service-account-syla-admin",
+      "enabled": true,
+      "serviceAccountClientId": "syla-admin",
+      "clientRoles": {
+        "realm-management": [
+          "manage-users"
+        ]
+      }
+    }
+  ]
+}

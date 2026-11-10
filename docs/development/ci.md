@@ -1,12 +1,14 @@
 # CI rollout
 
-Status: [ADR-0014](../adr/0014-staged-github-actions-ci.md) accepted on 2026-11-05. The repository/architecture workflow passes locally and on [PR #1](https://github.com/YBamburova/syla/pull/1). The [first GitHub run](https://github.com/YBamburova/syla/actions/runs/42029878021) passed Repository, Architecture, and CI gate for commit `fc011b6`. Required-check enforcement, hosted failure/recovery evidence, and main-branch execution remain unverified. The PR remains unmerged.
+Status: [ADR-0014](../adr/0014-staged-github-actions-ci.md) accepted on 2026-11-05. The repository/architecture workflow passes locally and on [PR #1](https://github.com/YBamburova/syla/pull/1). The [first GitHub run](https://github.com/YBamburova/syla/actions/runs/42029878021) passed Repository, Architecture, and CI gate for commit `fc011b6`. PR #1 was squash-merged as `de04b51`; its [main run](https://github.com/YBamburova/syla/actions/runs/42030385907) passed. A superseded PR run also showed CI gate rejecting cancelled dependencies. Required-check enforcement and hosted broken-link/DSL failure-recovery remain unverified.
 
 CI means continuous integration: every PR gets automated checks before merging. A red result points to a failing check; fix the change and push another commit to the same feature branch. A green result permits review/merge but does not prove the product is complete.
 
 ## First CI change
 
-Implementation ready on `codex/define-ci`: `.github/workflows/ci.yml`, standard-library Python repository/gate checks with regression tests, and real Structurizr validation. No application-service checks exist yet. The component guard deliberately rejects introducing `web`, `services/core-api`, or `services/agent-service` until the same change wires in its real job and extends the gate. When expanding CI, replace that component's guard with an explicit expected-manifest check so deleting its manifest cannot make it inapplicable.
+The merged first CI change added: `.github/workflows/ci.yml`, standard-library Python repository/gate checks with regression tests, and real Structurizr validation. The current Java slice adds a real `Core` job running `./mvnw clean verify` on Java 21, plus a `core` gate dependency. It runs on every PR/main push. No path skips or missing-manifest skips. The repository checker always expects the core POM, wrapper script, and wrapper properties; agent/web stay guarded until their own jobs exist.
+
+Core checks now generate interfaces/DTOs from YAML, run domain and Modulith tests, and start real PostgreSQL/Keycloak plus the packaged JAR for integration checks. Flyway migrations and owner/retry/revision/privacy flows are included. The integration suite is under final review; see the personal-logging checkpoint for current status. The core CI job is implemented but not yet run on GitHub. Local core instructions: [build and startup](../../services/core-api/README.md).
 
 Local commands, from the repository root:
 
@@ -28,9 +30,9 @@ Local review on 2026-11-05: repository checks passed and all 10 checker tests pa
 
 1. Completed locally: accepted ADR, reusable repository checker, pinned Structurizr validation, and checker regression tests.
 2. Completed locally: existing documentation and DSL pass; accepted historical ADRs were not rewritten.
-3. Completed locally: `.github/workflows/ci.yml` includes repository, architecture, and aggregate `CI gate` jobs. No missing-service placeholder jobs.
+3. Completed locally: `.github/workflows/ci.yml` includes repository, architecture, and aggregate `CI gate` jobs; the current slice adds Core. No missing-service placeholder jobs.
 4. Completed: signed-off commit, published PR #1, and successful GitHub checks. Still pending: demonstrate a failing broken link or invalid DSL and its correction on GitHub; verify the gate fails with its dependency. Local failure/correction evidence is recorded above.
-5. After a successful run, require `CI gate` on main and retain solo-friendly PR/squash rules. Merge only with authorization. Verify the merged commit's main workflow too.
+5. After a successful run, require `CI gate` on main and retain solo-friendly PR/squash rules. Merge only with authorization. PR #1 main execution passed; verify each later merged change too.
 
 ## Expand during M0/M1
 

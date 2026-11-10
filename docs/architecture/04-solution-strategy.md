@@ -37,3 +37,5 @@ These need their own ADRs before the related code is written:
 - Python agent framework (for example LangGraph or PydanticAI)
 - Oura sync model: webhooks, scheduled polling, or both
 - AWS deployment architecture and region (an EU region is expected because of GDPR)
+
+M1 write/deletion design: [ADR-0015](../adr/0015-personal-logging-write-safety.md) describes actor locking, retry expiry, and deletion retention. It was accepted by the user on 2026-11-10.

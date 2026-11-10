@@ -18,3 +18,4 @@ Format: [Michael Nygard's ADR template](https://cognitect.com/blog/2011/11/15/do
 | [0012](0012-oidc-login-and-server-sessions.md) | OIDC login with Keycloak and server-side sessions | Accepted | 2026-11-04 |
 | [0013](0013-web-application-tooling.md) | Vite-based React web tooling | Accepted | 2026-11-04 |
 | [0014](0014-staged-github-actions-ci.md) | Staged GitHub Actions CI with one required gate | Accepted | 2026-11-05 |
+| [0015](0015-personal-logging-write-safety.md) | Personal logging write safety and deletion | Accepted | 2026-11-10 |

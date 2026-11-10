@@ -1,0 +1,66 @@
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.7-pg17-trixie@sha256:01215e09bd4bd582d20230e025b6c971deeeffee49ceef1aae167e839cb62a7e
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${PG_ADMIN_PASSWORD:?Set PG_ADMIN_PASSWORD}
+      SYLA_DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
+      KEYCLOAK_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Set KEYCLOAK_DB_PASSWORD}
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./services/core-api/dev/init-databases.sh:/docker-entrypoint-initdb.d/001-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.2@sha256:723b1d6e254c0fc96d5cffec860c7e0744d6a3277822b865bb538cf891575e41
+    command: ["start-dev", "--import-realm"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Set KEYCLOAK_DB_PASSWORD}
+      KC_HTTP_PORT: "8081"
+      KC_HOSTNAME: http://keycloak.localhost:8081
+      KC_HEALTH_ENABLED: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: local-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD}
+      KEYCLOAK_SERVICE_SECRET: ${KEYCLOAK_SERVICE_SECRET:?Set KEYCLOAK_SERVICE_SECRET}
+      CORE_ORIGIN: http://localhost:${CORE_PORT:-8080}
+    ports:
+      - "127.0.0.1:8081:8081"
+    volumes:
+      - ./services/core-api/dev/syla-realm.json:/opt/keycloak/data/import/syla-realm.json:ro
+    networks:
+      default:
+        aliases: [keycloak.localhost]
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/9000; printf 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3; grep -q '\"status\"[[:space:]]*:[[:space:]]*\"UP\"' <&3"]
+      interval: 3s
+      timeout: 3s
+      retries: 60
+  core-api:
+    build: ./services/core-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${CORE_PORT:-8080}:8080"
+    environment:
+      SERVER_PORT: "8080"
+      DB_URL: jdbc:postgresql://postgres:5432/syla
+      DB_USER: syla
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
+      OIDC_ISSUER_URI: http://keycloak.localhost:8081/realms/syla
+      KEYCLOAK_SERVICE_SECRET: ${KEYCLOAK_SERVICE_SECRET:?Set KEYCLOAK_SERVICE_SECRET}
+volumes:
+  postgres-data:

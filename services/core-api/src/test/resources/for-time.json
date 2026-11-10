@@ -1,0 +1,156 @@
+{
+  "trainingDate": "2026-01-03",
+  "timeZone": "UTC",
+  "title": "Fran",
+  "section": {
+    "format": "FOR_TIME",
+    "scoreState": "SCORED",
+    "scaling": "RX",
+    "prescription": [
+      {
+        "items": [
+          {
+            "occurrenceId": "0-t",
+            "movement": "thruster",
+            "reps": 21,
+            "load": {
+              "kind": "EXTERNAL",
+              "amount": 65,
+              "unit": "LB",
+              "basis": "TOTAL_BARBELL"
+            }
+          },
+          {
+            "occurrenceId": "0-p",
+            "movement": "pull-up",
+            "reps": 21,
+            "load": {
+              "kind": "BODYWEIGHT"
+            }
+          }
+        ]
+      },
+      {
+        "items": [
+          {
+            "occurrenceId": "1-t",
+            "movement": "thruster",
+            "reps": 15,
+            "load": {
+              "kind": "EXTERNAL",
+              "amount": 65,
+              "unit": "LB",
+              "basis": "TOTAL_BARBELL"
+            }
+          },
+          {
+            "occurrenceId": "1-p",
+            "movement": "pull-up",
+            "reps": 15,
+            "load": {
+              "kind": "BODYWEIGHT"
+            }
+          }
+        ]
+      },
+      {
+        "items": [
+          {
+            "occurrenceId": "2-t",
+            "movement": "thruster",
+            "reps": 9,
+            "load": {
+              "kind": "EXTERNAL",
+              "amount": 65,
+              "unit": "LB",
+              "basis": "TOTAL_BARBELL"
+            }
+          },
+          {
+            "occurrenceId": "2-p",
+            "movement": "pull-up",
+            "reps": 9,
+            "load": {
+              "kind": "BODYWEIGHT"
+            }
+          }
+        ]
+      }
+    ],
+    "actual": [
+      {
+        "items": [
+          {
+            "occurrenceId": "0-t",
+            "movement": "thruster",
+            "reps": 21,
+            "load": {
+              "kind": "EXTERNAL",
+              "amount": 65,
+              "unit": "LB",
+              "basis": "TOTAL_BARBELL"
+            }
+          },
+          {
+            "occurrenceId": "0-p",
+            "movement": "pull-up",
+            "reps": 21,
+            "load": {
+              "kind": "BODYWEIGHT"
+            }
+          }
+        ]
+      },
+      {
+        "items": [
+          {
+            "occurrenceId": "1-t",
+            "movement": "thruster",
+            "reps": 15,
+            "load": {
+              "kind": "EXTERNAL",
+              "amount": 65,
+              "unit": "LB",
+              "basis": "TOTAL_BARBELL"
+            }
+          },
+          {
+            "occurrenceId": "1-p",
+            "movement": "pull-up",
+            "reps": 15,
+            "load": {
+              "kind": "BODYWEIGHT"
+            }
+          }
+        ]
+      },
+      {
+        "items": [
+          {
+            "occurrenceId": "2-t",
+            "movement": "thruster",
+            "reps": 9,
+            "load": {
+              "kind": "EXTERNAL",
+              "amount": 65,
+              "unit": "LB",
+              "basis": "TOTAL_BARBELL"
+            }
+          },
+          {
+            "occurrenceId": "2-p",
+            "movement": "pull-up",
+            "reps": 9,
+            "load": {
+              "kind": "BODYWEIGHT"
+            }
+          }
+        ]
+      }
+    ],
+    "result": {
+      "kind": "COMPLETED",
+      "elapsedSeconds": 462
+    }
+  }
+}

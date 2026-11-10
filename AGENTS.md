@@ -1,6 +1,6 @@
 # Working on Syla
 
-Syla is a social training platform for CrossFit and functional athletes. It is currently documentation-only. The primary goal is an architecture and AI engineering portfolio with a path to a real product.
+Syla is a social training platform for CrossFit and functional athletes. It has Java core health and private logging API code; M0/M1 are in progress. The primary goal is an architecture and AI engineering portfolio with a path to a real product.
 
 ## Read before working
 
@@ -32,4 +32,4 @@ Keep routine fixes lightweight. Do not add frameworks, infrastructure, custom sk
 
 ## Verification status
 
-No application build or Docker Compose configuration exists yet. Repository CI scripts now exist; use the commands in `docs/development/ci.md` for documentation/checker changes. The GitHub workflow passed on PR #1; see `docs/development/ci.md` for evidence and remaining rollout steps. Application commands in `docs/development/tech.md` are planned until the associated services are created.
+The Java core has YAML-generated API interfaces/DTOs, Swagger UI, JPA/Hibernate, Flyway, and PostgreSQL/Keycloak Compose files. Use `services/core-api/README.md` for setup and `docs/development/ci.md` for checks. `verify` requires Docker and Java 21 and includes real DB/provider tests. Check `docs/specs/personal-logging/tasks.md` for the current test status; do not infer full M1 completion from API code. Web, Python, AI, social, and wearable features remain planned.

@@ -10,6 +10,13 @@ from validate_architecture import validate
 
 
 class RepositoryChecksTest(unittest.TestCase):
+    @staticmethod
+    def core_build_files(root: Path) -> None:
+        for name in ("pom.xml", "mvnw", ".mvn/wrapper/maven-wrapper.properties"):
+            path = root / "services/core-api" / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("fixture")
+
     def test_local_links_anchors_and_reference_links(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -55,6 +62,7 @@ class RepositoryChecksTest(unittest.TestCase):
             file = root / "config.txt"
             credential = "gh" + "p_" + "a" * 30
             file.write_text(credential)
+            self.core_build_files(root)
             errors = repository_errors(root, [file])
             self.assertEqual(len(errors), 1)
             self.assertNotIn(credential, errors[0])
@@ -65,6 +73,7 @@ class RepositoryChecksTest(unittest.TestCase):
             file = root / "source.md"
             credential = "gh" + "p_" + "a" * 30
             file.write_text(f"[credential]({credential}.md)")
+            self.core_build_files(root)
             errors = repository_errors(root, [file])
             self.assertEqual(len(errors), 1)
             self.assertNotIn(credential, "\n".join(errors))
@@ -72,6 +81,7 @@ class RepositoryChecksTest(unittest.TestCase):
     def test_new_component_requires_real_ci(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
+            self.core_build_files(root)
             (root / "web").mkdir()
             self.assertEqual(len(repository_errors(root, [])), 1)
 
@@ -80,16 +90,24 @@ class RepositoryChecksTest(unittest.TestCase):
         self.assertFalse(title_valid("Update stuff"))
         self.assertFalse(title_valid("ci: add checks."))
 
+    def test_enabled_core_requires_build_files_even_if_directory_is_removed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.assertEqual(len(repository_errors(root, [])), 3)
+            self.core_build_files(root)
+            self.assertEqual(repository_errors(root, []), [])
+            (root / "services/core-api/pom.xml").unlink()
+            self.assertEqual(len(repository_errors(root, [])), 1)
+
     def test_gate_rejects_every_nonsuccess_and_missing_job(self) -> None:
-        self.assertTrue(gate_passes({"repository": {"result": "success"},
-                                     "architecture": {"result": "success"}}))
-        for state in ("failure", "cancelled", "skipped"):
-            self.assertFalse(gate_passes({"repository": {"result": state},
-                                          "architecture": {"result": "success"}}))
-        self.assertFalse(gate_passes({"repository": {"result": "success"}}))
-        self.assertFalse(gate_passes({"repository": {"result": "success"},
-                                     "architecture": {"result": "success"},
-                                     "unexpected": {"result": "success"}}))
+        successful = {job: {"result": "success"} for job in ("repository", "architecture", "core")}
+        self.assertTrue(gate_passes(successful))
+        for job in successful:
+            for state in ("failure", "cancelled", "skipped"):
+                with self.subTest(job=job, state=state):
+                    self.assertFalse(gate_passes({**successful, job: {"result": state}}))
+            self.assertFalse(gate_passes({key: value for key, value in successful.items() if key != job}))
+        self.assertFalse(gate_passes({**successful, "unexpected": {"result": "success"}}))
 
 
 if __name__ == "__main__":

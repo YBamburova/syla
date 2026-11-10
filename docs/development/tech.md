@@ -32,7 +32,11 @@ Use these unless an ADR says otherwise:
 
 ## Available repository checks
 
-See [CI instructions](ci.md) for the implemented documentation checker, checker regression tests, and pinned architecture validator. The initial GitHub run passed on PR #1; enforcement and main-branch verification remain rollout steps.
+See [CI instructions](ci.md) for the implemented documentation checker, checker regression tests, and pinned architecture validator. PR #1 and its merged main run passed. The new core job still needs an authorized PR run; required-check enforcement is separate.
+
+## Core build (implemented)
+
+Use Java 21 and `./mvnw clean verify` in `services/core-api`. This generates Java APIs/DTOs from YAML and runs unit/module plus real PostgreSQL/Keycloak integration checks; Docker is required. Startup uses PostgreSQL and Keycloak via Compose; see the core instructions. Versions: Boot 3.5.16, Modulith 1.4.14, Wrapper 3.3.4, Maven 3.10.0, OpenAPI Generator 7.27.0, springdoc 2.10.0, pgvector 0.8.7/PostgreSQL 17, Keycloak 26.8.2; CI uses Temurin 21.0.13+9. See [core instructions](../../services/core-api/README.md) for config and limits.
 
 ## Planned application commands (not executable yet)
 
@@ -40,9 +44,8 @@ Fill in as services are created. Every service must build and test with one comm
 
 | Service | Build and test |
 |---|---|
-| core-api | `./mvnw verify` (in `services/core-api`) |
 | agent-service | `uv run pytest` (in `services/agent-service`) |
 | web | `npm run test -- --run` (in `web`) |
-| Whole system | `docker compose up` (in the repository root) |
+| Whole system | Full stack planned; current `docker compose up --build` targets core/PostgreSQL/Keycloak; full startup verification is pending |
 
 Use bounded, non-watch commands for verification. Start a development server only when needed for the task; track its session and stop task-owned processes after verification.

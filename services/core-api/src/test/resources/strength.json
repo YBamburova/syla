@@ -1,0 +1,70 @@
+{
+  "trainingDate": "2026-01-01",
+  "timeZone": "Europe/Kyiv",
+  "title": "Back squat",
+  "section": {
+    "format": "STRENGTH",
+    "scoreState": "SCORED",
+    "scaling": "UNSPECIFIED",
+    "movement": "back-squat",
+    "sets": [
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    "actualSets": [
+      {
+        "setIndex": 0,
+        "reps": 5,
+        "load": {
+          "kind": "EXTERNAL",
+          "amount": 50,
+          "unit": "KG",
+          "basis": "TOTAL_BARBELL"
+        }
+      },
+      {
+        "setIndex": 1,
+        "reps": 5,
+        "load": {
+          "kind": "EXTERNAL",
+          "amount": 55,
+          "unit": "KG",
+          "basis": "TOTAL_BARBELL"
+        }
+      },
+      {
+        "setIndex": 2,
+        "reps": 5,
+        "load": {
+          "kind": "EXTERNAL",
+          "amount": 60,
+          "unit": "KG",
+          "basis": "TOTAL_BARBELL"
+        }
+      },
+      {
+        "setIndex": 3,
+        "reps": 5,
+        "load": {
+          "kind": "EXTERNAL",
+          "amount": 62.5,
+          "unit": "KG",
+          "basis": "TOTAL_BARBELL"
+        }
+      },
+      {
+        "setIndex": 4,
+        "reps": 5,
+        "load": {
+          "kind": "EXTERNAL",
+          "amount": 65,
+          "unit": "KG",
+          "basis": "TOTAL_BARBELL"
+        }
+      }
+    ]
+  }
+}

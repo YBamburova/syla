@@ -16,6 +16,8 @@ See the [architecture readiness review](architecture/review-2026-11-04.md) for p
 
 **Documentation:** local deployment view; initial building blocks; CI/tooling decisions; runnable README. Keep this milestone small and split it into separate setup PRs.
 
+Current M0 slice: [Java core foundation](specs/m0-java-core/requirements.md) adds the core build, health endpoint, module/JAR checks, and core CI. It does not complete M0; web, Python, persistence/migrations, auth, and full-stack smoke remain open.
+
 ## M1 — Personal logging demo
 
 **Demo:** an athlete signs in, logs a strength session and an AMRAP or For Time workout, reloads personal history, then edits and deletes a record.

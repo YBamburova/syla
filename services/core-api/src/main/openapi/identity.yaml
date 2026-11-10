@@ -1,0 +1,208 @@
+---
+openapi: 3.0.3
+info:
+  title: Syla account
+  version: 1.0.0
+servers:
+- url: "/"
+paths:
+  "/api/v1/account":
+    get:
+      tags:
+      - Account
+      operationId: getAccount
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/AccountView"
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '401':
+          description: Sign in required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '403':
+          description: Inactive account or consent required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '409':
+          description: Revision or retry conflict
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '428':
+          description: If-Match required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+    delete:
+      tags:
+      - Account
+      operationId: deleteAccount
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/DeletionResult"
+        '202':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/DeletionResult"
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '401':
+          description: Sign in required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '403':
+          description: Inactive account or consent required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '409':
+          description: Revision or retry conflict
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+        '428':
+          description: If-Match required
+          content:
+            application/problem+json:
+              schema:
+                "$ref": "#/components/schemas/ApiProblem"
+      description: Purge training/consent/retry data, then delete the provider user.
+        PENDING retries provider cleanup. COMPLETED retains only the disclosed 30-day
+        identity tombstone.
+  "/api/v1/csrf":
+    get:
+      tags:
+      - Account
+      operationId: csrf
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/CsrfResponse"
+      security: []
+components:
+  schemas:
+    ApiProblem:
+      type: object
+      additionalProperties: false
+      required:
+      - title
+      - status
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+          maxLength: 255
+        status:
+          type: integer
+          format: int32
+          minimum: 100
+          maximum: 599
+        detail:
+          type: string
+          maxLength: 255
+        instance:
+          type: string
+          maxLength: 255
+        code:
+          type: string
+          maxLength: 255
+        fields:
+          type: array
+          items:
+            type: string
+            maxLength: 255
+          minItems: 0
+          maxItems: 100
+    AccountView:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - state
+      properties:
+        id:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum:
+          - ACTIVE
+          - DELETING
+          - DELETED
+    DeletionResult:
+      type: object
+      additionalProperties: false
+      required:
+      - state
+      properties:
+        state:
+          type: string
+          enum:
+          - PENDING
+          - COMPLETED
+    CsrfResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - headerName
+      - token
+      properties:
+        headerName:
+          type: string
+          maxLength: 255
+        token:
+          type: string
+          maxLength: 512
+  securitySchemes:
+    session:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+security:
+- session: []

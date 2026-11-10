@@ -102,9 +102,13 @@ def repository_errors(root: Path, files: list[Path]) -> list[str]:
         if path.suffix.lower() == ".md":
             errors.extend(f"{relative}: {error}" for error in markdown_errors(root, path))
     # Until a service's real job is added, adding it must fail instead of going unchecked.
-    for component in ("services/core-api", "services/agent-service", "web"):
+    for component in ("services/agent-service", "web"):
         if (root / component).exists():
             errors.append(f"{component}: add its real CI job and gate dependency before enabling this component")
+    for manifest in ("services/core-api/pom.xml", "services/core-api/mvnw",
+                     "services/core-api/.mvn/wrapper/maven-wrapper.properties"):
+        if not (root / manifest).is_file():
+            errors.append(f"{manifest}: required core build file is missing")
     return errors
 
 

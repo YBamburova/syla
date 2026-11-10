@@ -42,3 +42,16 @@ Accepted setup decisions: [authentication ADR-0012](../../adr/0012-oidc-login-an
 - [ ] E4. Update README, runtime/building-block views, data inventory, and milestone evidence. Review remaining issues with the user before marking M1 done. No code generation or passing unit tests alone satisfies the milestone.
 
 These are implementation slices, not a requirement to put each checkbox into a separate PR. Group coherent work while keeping reviews small. Resolve failed checks before declaring the associated task complete.
+
+## Backend checkpoint 2026-11-10
+
+- [x] User chose OpenAPI YAML → generated Java interfaces/record DTOs.
+- [x] User accepted ADR-0015 for write safety and deletion.
+- [x] Add pinned JPA/Hibernate, Flyway PostgreSQL support, pgvector Compose, and isolated Keycloak persistence.
+- [x] Add generated health, account, privacy, and workout contracts with Swagger UI.
+- [x] Add backend CRUD, owner checks, typed scores, consent, export, revision/retry checks, and deletion code.
+- [x] Unit/domain/retry/module tests pass (11 Java tests); repository checker tests pass (11 Python tests).
+- [ ] Final provider cleanup check remains failing: Keycloak admin cleanup returns HTTP 401 and deletion stays PENDING. Final run: 11 Java unit/module tests passed; 5 of 6 real PostgreSQL/Keycloak integration tests passed. Login, CRUD, score checks, retry/revision checks, and consent/export passed. Keep the failing deletion test; this stage is not ready to merge as complete M1.
+- [ ] Full Compose startup, frontend/browser demo, and hosted CI remain unverified.
+
+No full M1 completion or production readiness is claimed. Earlier A–F tasks describe the complete milestone; this checkpoint records only the backend slice.

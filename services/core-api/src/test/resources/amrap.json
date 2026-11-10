@@ -1,0 +1,67 @@
+{
+  "trainingDate": "2026-01-02",
+  "timeZone": "UTC",
+  "title": "Cindy",
+  "section": {
+    "format": "AMRAP",
+    "scoreState": "SCORED",
+    "scaling": "RX",
+    "durationSeconds": 1200,
+    "prescription": [
+      {
+        "occurrenceId": "pull",
+        "movement": "pull-up",
+        "reps": 5,
+        "load": {
+          "kind": "BODYWEIGHT"
+        }
+      },
+      {
+        "occurrenceId": "push",
+        "movement": "push-up",
+        "reps": 10,
+        "load": {
+          "kind": "BODYWEIGHT"
+        }
+      },
+      {
+        "occurrenceId": "squat",
+        "movement": "air-squat",
+        "reps": 15,
+        "load": {
+          "kind": "BODYWEIGHT"
+        }
+      }
+    ],
+    "actual": [
+      {
+        "occurrenceId": "pull",
+        "movement": "pull-up",
+        "reps": 5,
+        "load": {
+          "kind": "BODYWEIGHT"
+        }
+      },
+      {
+        "occurrenceId": "push",
+        "movement": "push-up",
+        "reps": 10,
+        "load": {
+          "kind": "BODYWEIGHT"
+        }
+      },
+      {
+        "occurrenceId": "squat",
+        "movement": "air-squat",
+        "reps": 15,
+        "load": {
+          "kind": "BODYWEIGHT"
+        }
+      }
+    ],
+    "result": {
+      "rounds": 12,
+      "additionalReps": 8
+    }
+  }
+}

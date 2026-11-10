@@ -1,0 +1,38 @@
+---
+openapi: 3.0.3
+info:
+  title: Syla health
+  version: 1.0.0
+servers:
+- url: "/"
+paths:
+  "/api/v1/health":
+    get:
+      tags:
+      - Health
+      operationId: health
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HealthResponse"
+      description: Process health only; does not check database or login readiness.
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - status
+      properties:
+        status:
+          type: string
+          enum:
+          - UP
+  securitySchemes:
+    session:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID

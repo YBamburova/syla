@@ -4,7 +4,7 @@ import json
 import os
 import sys
 
-EXPECTED_JOBS = {"repository", "architecture"}
+EXPECTED_JOBS = {"repository", "architecture", "core"}
 
 
 def gate_passes(needs: dict) -> bool:
