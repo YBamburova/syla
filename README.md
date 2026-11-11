@@ -1,37 +1,25 @@
 # Syla
 
-> **Syla** (Ukrainian: Сила, "strength"). A social training platform for CrossFit and functional athletes.
+Syla (Сила, “strength”) is a Strava-like social training network for CrossFit athletes and gym people: log meaningful workouts, track progress, and connect with other athletes.
 
-Log WODs and lifts in seconds, track real progress (PRs, estimated 1RM, benchmark times), see Oura recovery data next to your training, and follow your community.
-
-**Status:** architecture phase. No runnable code yet.
+**Status:** product and architecture groundwork. No application source/build or Docker Compose configuration is tracked yet.
 
 ## Documentation
 
-- [Personal logging specification](docs/specs/personal-logging/requirements.md)
-- [Workout domain model](docs/workout-model.md)
-- [Agreed workout examples](docs/workout-examples.md)
-- [Proposed milestones](docs/milestones.md)
-- [Architecture readiness review](docs/architecture/review-2026-11-04.md)
-- [Product Vision](docs/vision.md)
-- [Architecture (arc42)](docs/architecture/README.md)
-- [Architecture Decision Records](docs/adr/README.md)
-- [C4 diagrams (Structurizr DSL)](docs/c4/workspace.dsl)
+| Document | Purpose |
+|---|---|
+| [Product](docs/product.md) | Who it serves, initial scope, and later capabilities |
+| [Architecture](docs/architecture.md) | Components, ownership, security, and runtime boundaries |
+| [Decisions](docs/decisions.md) | All architecture decisions in one table |
+| [Development](docs/development.md) | Coding conventions, verification, Git, and CI |
+| [Workouts](docs/workouts.md) | Domain model, approved examples, and open scoring rules |
 
-## Development with Codex
+The [C4 workspace](docs/c4/workspace.dsl) describes the target system. [AGENTS.md](AGENTS.md) guides coding agents. Task planning belongs in issues/PRs; no document set is required for each feature.
 
-Repository checks: `python3 scripts/ci/check_repository.py` and `python3 -m unittest discover -s scripts/ci -p 'test_*.py'`. Architecture validation: `python3 scripts/ci/validate_architecture.py` (requires Java 21+ and downloads a checksum-pinned validator). See [CI instructions](docs/development/ci.md).
-
-Start with [AGENTS.md](AGENTS.md). Supporting instructions live in [docs/development](docs/development/README.md); feature specifications belong in `docs/specs/<feature>/`. No custom skills are required initially.
-
-## Planned Stack
-
-Java 21 / Spring Boot (core API), Python (AI agents), TypeScript / React (web app), PostgreSQL + pgvector, RabbitMQ, Docker Compose, AWS as target cloud. Each choice is justified in an ADR.
+The planned stack is Java/Spring core, Python AI assistance, React/TypeScript web, and PostgreSQL. The decision table records the additional planned components and tradeoffs. [GitHub CI](.github/workflows/ci.yml) currently checks patch whitespace and explicitly reports that application tests are not configured. Add real tests with the first application code.
 
 ## License
 
-[Apache License 2.0](LICENSE). The "Syla" name is not covered by the license (see [NOTICE](NOTICE)).
-
-## Author
+[Apache License 2.0](LICENSE). The Syla name is excluded; see [NOTICE](NOTICE).
 
 Yuliana Bamburova
