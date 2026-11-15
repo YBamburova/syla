@@ -13,6 +13,13 @@
  */
 
 import { mapValues, parseDate, parseDateTime, serializeDate, serializeDateTime } from '../runtime';
+import type { Relationship } from './Relationship';
+import {
+    RelationshipFromJSON,
+    RelationshipFromJSONTyped,
+    RelationshipToJSON,
+    RelationshipToJSONTyped,
+} from './Relationship';
 import type { AccountView } from './AccountView';
 import {
     AccountViewFromJSON,
@@ -27,6 +34,13 @@ import {
     WorkoutViewToJSON,
     WorkoutViewToJSONTyped,
 } from './WorkoutView';
+import type { ProfileView } from './ProfileView';
+import {
+    ProfileViewFromJSON,
+    ProfileViewFromJSONTyped,
+    ProfileViewToJSON,
+    ProfileViewToJSONTyped,
+} from './ProfileView';
 
 /**
  * 
@@ -50,6 +64,14 @@ export interface Export {
      * 
      */
     activities?: Array<WorkoutView>;
+    /**
+     * 
+     */
+    profile?: ProfileView;
+    /**
+     * 
+     */
+    relationships?: Array<Relationship>;
 }
 
 /**
@@ -73,6 +95,8 @@ export function ExportFromJSONTyped(json: any, ignoreDiscriminator: boolean): Ex
         'exportedAt': json['exportedAt'] == null ? undefined : (parseDateTime(json['exportedAt'])),
         'account': json['account'] == null ? undefined : AccountViewFromJSON(json['account']),
         'activities': json['activities'] == null ? undefined : ((json['activities'] as Array<any>).map(WorkoutViewFromJSON)),
+        'profile': json['profile'] == null ? undefined : ProfileViewFromJSON(json['profile']),
+        'relationships': json['relationships'] == null ? undefined : ((json['relationships'] as Array<any>).map(RelationshipFromJSON)),
     };
 }
 
@@ -91,6 +115,8 @@ export function ExportToJSONTyped(value?: Export | null, ignoreDiscriminator: bo
         'exportedAt': value['exportedAt'] == null ? value['exportedAt'] : serializeDateTime(value['exportedAt']),
         'account': AccountViewToJSON(value['account']),
         'activities': value['activities'] == null ? undefined : ((value['activities'] as Array<any>).map(WorkoutViewToJSON)),
+        'profile': ProfileViewToJSON(value['profile']),
+        'relationships': value['relationships'] == null ? undefined : ((value['relationships'] as Array<any>).map(RelationshipToJSON)),
     };
 }
 

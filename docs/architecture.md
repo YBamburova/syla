@@ -1,6 +1,6 @@
 # Architecture
 
-The Java core and React frontend implement private manual running/swimming/cycling/general workout logs, Keycloak OIDC sessions, recorded consent, PostgreSQL/Flyway persistence, owner-scoped CRUD, export, and retryable account deletion. OpenAPI generates the TypeScript client. The [C4 workspace](c4/workspace.dsl) remains the broader target; AI, broker workflows, CrossFit formats, social feeds, and wearables are not implemented. Reasons and history live in the [decision table](decisions.md).
+The Java core and React frontend implement private manual running/swimming/cycling/general workout logs, Keycloak OIDC sessions, recorded consent, PostgreSQL/Flyway persistence, owner-scoped CRUD, export, and retryable account deletion. Automatic profiles, athlete search, follow approvals, blocking and follower-only activity summaries are also implemented. OpenAPI generates the TypeScript client. The [C4 workspace](c4/workspace.dsl) remains the broader target; AI, broker workflows, CrossFit formats, social feeds, and wearables are not implemented. Reasons and history live in the [decision table](decisions.md).
 
 ## Components and ownership
 
@@ -14,7 +14,7 @@ The Java core and React frontend implement private manual running/swimming/cycli
 | Broker | Cross-service asynchronous work when implemented | RabbitMQ with transactional outbox |
 | MCP (later) | Permissioned reads through the core API | TypeScript, Node.js |
 
-The frontend stays in `web/` in the same GitHub repository as `services/core-api`, as already selected in decisions 0003/0013. This keeps contract and UI changes in one review. Java DTOs generate the OpenAPI schema through springdoc; OpenAPI Generator creates the TypeScript client. Persistence entities stay internal and separate from transport DTOs. The implemented modules are `identity`, `workouts`, `privacy`, and `platform`. Account and workout schemas have no cross-module foreign keys. Stable workout identity/owner/date/sport/duration fields are relational; optional sport metrics use validated JSONB. A locked account row serializes mutations with deletion and duplicate submissions.
+The frontend stays in `web/` in the same GitHub repository as `services/core-api`, as already selected in decisions 0003/0013. This keeps contract and UI changes in one review. Java DTOs generate the OpenAPI schema through springdoc; OpenAPI Generator creates the TypeScript client. Persistence entities stay internal and separate from transport DTOs. The implemented modules are `identity`, `social`, `workouts`, `privacy`, and `platform`. Account and workout schemas have no cross-module foreign keys. Stable workout identity/owner/date/sport/duration fields are relational; optional sport metrics use validated JSONB. A locked account row serializes mutations with deletion and duplicate submissions.
 
 ## Core boundaries
 
@@ -29,6 +29,12 @@ Use Keycloak OIDC Authorization Code + PKCE through Spring Security in the core.
 Enforce ownership and audience rules in the core. Authentication is separate from consent. Support export and retryable account deletion across implemented modules and the identity provider. Block mutations before cleanup; concurrent requests, delayed jobs, or a stale provider session must not restore/reprovision a deleted account. Local registration is hosted by Keycloak; email verification/delivery is disabled only in the local realm. Provider account deletion uses a server-side management client. Successful deletion retains only a hash-based identity blocker for 24–25 hours to outlive all 12-hour app sessions, then purges it. Production identity hardening and provider-session revocation behavior still require review before real users.
 
 No secrets, tokens, workout payloads, or health values in logs/traces. Minimize identifiers. Whiteboard photos are resized to about 1600 px, JPEG-compressed, and stripped of EXIF in the browser; process in memory and discard everywhere. Never persist or log images. Save only reviewed structured data. Permissioned, de-identified evaluation fixtures are separate from production data.
+
+## Athlete social access
+
+Identity owns registration names and athlete profiles. Session/consent synchronizes the authenticated OIDC username and given/family names and initializes missing profiles, defaulting to approval-required following. Existing profile edits are never overwritten; deletion clears these registration fields as well. No Keycloak database reads or bulk provider-account imports are used. Social owns follow requests, accepted relationships and directed blocks. Both use bounded, parameterized PostgreSQL queries without new dependencies. Workouts reads permissions through the public social API; social never queries workout tables. Privacy orchestrates export and deletion through public module APIs.
+
+Relationship mutations lock both active identity rows in stable UUID order. This serializes reciprocal requests, blocking and deletion without a global lock. Shared activity reads use the same locks before checking live permissions and reading data. All new and migrated activities are PRIVATE. Changing to FOLLOWERS is explicit and revision-guarded; content edits preserve the audience. Approved followers receive a separate allowlisted DTO containing title, sport, training date, duration, canonical distance and calculated speed/pace. It excludes notes, health metrics, equipment, effort, exact start time and time zone. Nonpermitted direct IDs return 404; access is checked on each request. No copied feed, cache infrastructure or asynchronous consumers are introduced.
 
 ## Shared training
 

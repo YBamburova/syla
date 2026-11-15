@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 
 public interface AthleteAccess {
     AccountView current(Authentication authentication);
+    UUID activeId(Authentication authentication);
     /** Lock the active account in the caller transaction; optionally require recorded training consent. */
     UUID lockActive(Authentication authentication, boolean consentRequired);
     void consent(Authentication authentication);

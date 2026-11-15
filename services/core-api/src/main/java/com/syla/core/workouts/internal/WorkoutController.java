@@ -46,6 +46,13 @@ class WorkoutController {
         return workouts.update(auth, id, input, revision);
     }
 
+    @PatchMapping("/{id}/visibility")
+    @Operation(operationId="shareWorkout", summary="Explicitly share a safe summary with approved followers, or make it private")
+    WorkoutView share(Authentication auth, @PathVariable UUID id, @Valid @RequestBody SharingInput input,
+                      @RequestHeader(value="If-Match",required=false) String revision) {
+        return workouts.share(auth,id,input,revision);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "deleteWorkout", summary = "Delete an owned activity using its quoted revision in If-Match")

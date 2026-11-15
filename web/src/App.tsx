@@ -27,6 +27,8 @@ function Shell() {
             <NavLink to="/" end>
               Activities
             </NavLink>
+            <NavLink to="/athletes">People</NavLink>
+            <NavLink to="/profile">My profile</NavLink>
             <NavLink to="/privacy">Privacy &amp; data</NavLink>
           </nav>
           <div className="account-controls">
@@ -102,6 +104,30 @@ export const appRoutes = [
             await import("./activities/ActivityDetail");
           return { Component: () => <ActivityDetail edit /> };
         },
+      },
+      {
+        path: "profile",
+        lazy: async () => ({
+          Component: (await import("./social/Profile")).Profile,
+        }),
+      },
+      {
+        path: "athletes",
+        lazy: async () => ({
+          Component: (await import("./social/People")).People,
+        }),
+      },
+      {
+        path: "athletes/:handle",
+        lazy: async () => ({
+          Component: (await import("./social/Athlete")).Athlete,
+        }),
+      },
+      {
+        path: "shared-activities/:id",
+        lazy: async () => ({
+          Component: (await import("./social/Athlete")).SharedActivity,
+        }),
       },
       { path: "privacy", element: <Privacy /> },
       { path: "*", element: <Navigate to="/" replace /> },

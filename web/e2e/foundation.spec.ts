@@ -8,7 +8,11 @@ test.beforeEach(({ page }) => {
   );
 });
 
-async function registerAthlete(page: Page) {
+async function registerAthlete(
+  page: Page,
+  firstName = "Test",
+  lastName = "Athlete",
+) {
   const username = "athlete-" + randomUUID().slice(0, 12),
     password = "Syla-" + randomUUID() + "!";
   await page.goto("/");
@@ -18,8 +22,8 @@ async function registerAthlete(page: Page) {
   await page.getByRole("link", { name: "Register", exact: true }).click();
   await page.getByLabel("Username").fill(username);
   await page.getByLabel("Email").fill(username + "@example.invalid");
-  await page.getByLabel("First name").fill("Test");
-  await page.getByLabel("Last name").fill("Athlete");
+  await page.getByLabel("First name").fill(firstName);
+  await page.getByLabel("Last name").fill(lastName);
   await page.locator("input#password").fill(password);
   await page.locator("input#password-confirm").fill(password);
   await page.getByRole("button", { name: "Register", exact: true }).click();
@@ -31,6 +35,7 @@ async function registerAthlete(page: Page) {
   await expect(
     page.getByRole("heading", { name: "Activities", exact: true }),
   ).toBeVisible();
+  return username;
 }
 
 test("logs all four sports, reloads, edits, exports, and deletes through real authenticated APIs", async ({
@@ -175,4 +180,138 @@ test("logs all four sports, reloads, edits, exports, and deletes through real au
     page.getByRole("heading", { name: "Your account has been deleted." }),
   ).toBeVisible();
   expect((await page.request.get("/api/v1/workouts")).status()).toBe(401);
+});
+
+test("private follow approval, explicit workout sharing and blocking work between real athletes", async ({
+  page,
+  browser,
+}, testInfo) => {
+  test.setTimeout(150_000);
+  const follower = await browser.newPage({
+    baseURL: "http://localhost:5173",
+    viewport: page.viewportSize() ?? undefined,
+    timezoneId:
+      testInfo.project.name === "mobile"
+        ? "Europe/Kyiv"
+        : "America/Los_Angeles",
+  });
+  const mutate = async (target: Page, path: string) => {
+    const csrf = await (
+      await target.request.get("/api/v1/session/csrf")
+    ).json();
+    return target.request.delete(path, {
+      headers: { [csrf.headerName]: csrf.token },
+    });
+  };
+  try {
+    const ownerUsername = await registerAthlete(page, "Social", "Owner");
+    await registerAthlete(follower, "Social", "Follower");
+    const ownerProfile = await (
+      await page.request.get("/api/v1/profile")
+    ).json();
+    const ownerHandle = ownerProfile.profile.handle;
+    // Neither athlete visits profile setup. Registration details are ready to use.
+    await page.getByRole("link", { name: "Activities", exact: true }).click();
+    await page.getByRole("link", { name: "Log activity", exact: true }).click();
+    await page
+      .getByRole("textbox", { name: "Activity title (optional)" })
+      .fill("Shared morning run");
+    await page
+      .getByRole("spinbutton", { name: "Minutes", exact: true })
+      .fill("30");
+    await page
+      .getByRole("spinbutton", { name: "Distance (optional)" })
+      .fill("5");
+    await page
+      .getByRole("button", { name: "Save activity", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "Shared morning run", exact: true }),
+    ).toBeVisible();
+    const activityId = page.url().split("/").pop();
+    page.once("dialog", (dialog) => dialog.accept());
+    await page
+      .getByRole("button", { name: "Share with followers", exact: true })
+      .click();
+    await expect(
+      page.getByRole("button", { name: "Make private", exact: true }),
+    ).toBeVisible();
+    await follower.getByRole("link", { name: "People", exact: true }).click();
+    await follower
+      .getByRole("textbox", { name: "Find athletes" })
+      .fill(ownerUsername);
+    await follower
+      .getByRole("button", { name: "Search", exact: true })
+      .last()
+      .click();
+    await follower
+      .getByRole("link", { name: "Social Owner", exact: true })
+      .click();
+    await page.getByRole("link", { name: "People", exact: true }).click();
+    await page.getByRole("button", { name: "Requests", exact: true }).click();
+    await expect(page.getByText("No incoming follow requests.")).toBeVisible();
+    await follower
+      .getByRole("button", { name: "Request to follow", exact: true })
+      .click();
+    await expect(
+      follower.getByText("Your follow request is waiting for approval."),
+    ).toBeVisible();
+    expect(
+      (
+        await follower.request.get(`/api/v1/shared-activities/${activityId}`)
+      ).status(),
+    ).toBe(404);
+    await page.bringToFront();
+    await expect(
+      page.getByRole("button", { name: "Accept", exact: true }),
+    ).toBeVisible({ timeout: 15000 });
+    await page.getByRole("button", { name: "Accept", exact: true }).click();
+    await expect(page.getByText("No incoming follow requests.")).toBeVisible();
+    await follower.reload();
+    await follower
+      .getByRole("link", { name: "Shared morning run", exact: true })
+      .click();
+    await expect(
+      follower.getByRole("heading", {
+        name: "Shared morning run",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(follower.getByText("5 km", { exact: true })).toBeVisible();
+    await follower.screenshot({
+      path: testInfo.outputPath("shared-activity.png"),
+      fullPage: true,
+    });
+    expect(
+      await follower.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await page.getByRole("button", { name: "Followers", exact: true }).click();
+    await page
+      .getByRole("link", { name: "Social Follower", exact: true })
+      .click();
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByRole("button", { name: "Block", exact: true }).click();
+    await expect(page).toHaveURL(/\/athletes$/);
+    await follower.reload();
+    await expect(follower.getByText(/Activity unavailable/)).toBeVisible();
+    expect(
+      (
+        await follower.request.get(`/api/v1/athletes/by-handle/${ownerHandle}`)
+      ).status(),
+    ).toBe(404);
+    await page.getByRole("button", { name: "Blocked", exact: true }).click();
+    await page.getByRole("button", { name: "Unblock", exact: true }).click();
+    await expect(page.getByText("No athletes here yet.")).toBeVisible();
+    expect(
+      (
+        await follower.request.get(`/api/v1/shared-activities/${activityId}`)
+      ).status(),
+    ).toBe(404);
+  } finally {
+    expect((await mutate(page, "/api/v1/account")).status()).toBe(204);
+    expect((await mutate(follower, "/api/v1/account")).status()).toBe(204);
+    await follower.close();
+  }
 });

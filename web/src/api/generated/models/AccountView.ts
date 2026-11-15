@@ -47,6 +47,18 @@ export interface AccountView {
      * 
      */
     consentedAt?: Date;
+    /**
+     * 
+     */
+    username?: string;
+    /**
+     * 
+     */
+    firstName?: string;
+    /**
+     * 
+     */
+    lastName?: string;
 }
 
 /**
@@ -73,6 +85,9 @@ export function AccountViewFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'consented': json['consented'] == null ? undefined : json['consented'],
         'consentVersion': json['consentVersion'] == null ? undefined : json['consentVersion'],
         'consentedAt': json['consentedAt'] == null ? undefined : (parseDateTime(json['consentedAt'])),
+        'username': json['username'] == null ? undefined : json['username'],
+        'firstName': json['firstName'] == null ? undefined : json['firstName'],
+        'lastName': json['lastName'] == null ? undefined : json['lastName'],
     };
 }
 
@@ -94,6 +109,9 @@ export function AccountViewToJSONTyped(value?: AccountView | null, ignoreDiscrim
         'consented': value['consented'],
         'consentVersion': value['consentVersion'],
         'consentedAt': value['consentedAt'] == null ? value['consentedAt'] : serializeDateTime(value['consentedAt']),
+        'username': value['username'],
+        'firstName': value['firstName'],
+        'lastName': value['lastName'],
     };
 }
 

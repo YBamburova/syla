@@ -774,3 +774,82 @@ h3 {
   cursor: pointer;
   z-index: 1;
 }
+
+.social-page {
+  max-width: 720px;
+}
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin: 28px 0;
+}
+.profile-form > button {
+  align-self: flex-start;
+}
+.people-tabs,
+.people-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.people-tabs {
+  margin-bottom: 24px;
+}
+.people-search {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 24px 0;
+}
+.people-search > .MuiTextField-root {
+  flex: 1;
+}
+.people-list {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+}
+.people-list > li {
+  border-bottom: 1px solid var(--line);
+  padding: 20px 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.people-list p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+.profile-bio {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 701px) {
+  .main-nav {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 1000px) {
+  .workspace-header {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    padding: 16px 20px 0;
+  }
+  .main-nav {
+    order: 3;
+    width: 100%;
+    height: 48px;
+    gap: 18px;
+    flex-wrap: nowrap;
+  }
+  .main-nav a {
+    font-size: 14px;
+    white-space: nowrap;
+  }
+}

@@ -80,16 +80,19 @@ export function Privacy() {
       <section className="form-card privacy-card">
         <h2>Activity privacy</h2>
         <p>
-          Only you can see your activity records. Heart rate, energy, effort,
-          and equipment details are optional. There is no public feed or
-          location tracking in this release.
+          Activities start private. You can share a limited summary with
+          approved followers from each activity. Notes, health metrics,
+          equipment and exact start times remain private. Your registration
+          name, username and athlete profile are discoverable to signed-in
+          athletes. Manage followers and blocked athletes in People.
         </p>
       </section>
       <section className="form-card privacy-card">
         <h2>Export your data</h2>
         <p>
-          Download your activities, entered metrics, account identifier, and
-          recorded consent in a machine-readable JSON file.
+          Download your activities, entered metrics, athlete profile, follow
+          relationships, outgoing blocks, account identifier and recorded
+          consent as JSON.
         </p>
         <Button
           variant="outlined"
@@ -106,9 +109,10 @@ export function Privacy() {
       <section className="form-card privacy-card danger-card">
         <h2>Withdraw consent &amp; delete account</h2>
         <p>
-          This stops training-data processing, deletes all your activities and
-          consent, and removes your Keycloak sign-in account. If identity
-          cleanup fails, access stays blocked and deletion can be retried.
+          This stops training-data processing, deletes all your activities,
+          profile, follow relationships, blocks and consent, and removes your
+          Keycloak sign-in account. If identity cleanup fails, access stays
+          blocked and deletion can be retried.
         </p>
         <p>
           A hashed sign-in blocker is retained for up to 25 hours after
@@ -130,8 +134,9 @@ export function Privacy() {
       >
         <DialogTitle>Delete your account and all activities?</DialogTitle>
         <DialogContent>
-          Your workouts, training consent, and sign-in account will be removed.
-          Export your data first if you want a copy. This cannot be undone.
+          Your workouts, profile, relationships, blocks, training consent and
+          sign-in account will be removed. Export your data first if you want a
+          copy. This cannot be undone.
         </DialogContent>
         <DialogActions>
           <Button

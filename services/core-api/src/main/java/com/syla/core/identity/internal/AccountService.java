@@ -45,16 +45,27 @@ class AccountService implements AthleteAccess {
         return athletes.lockByKey(key).orElseThrow();
     }
 
+    @Override @Transactional(readOnly = true)
+    public UUID activeId(Authentication authentication) {
+        var athlete = athletes.findByIdentityKey(key(user(authentication)))
+                .orElseThrow(() -> new ApiProblem(403, "Confirm consent first."));
+        if (!athlete.state.equals("ACTIVE") || !CONSENT_VERSION.equals(athlete.consentVersion))
+            throw new ApiProblem(403, "An active account with training consent is required.");
+        return athlete.id;
+    }
+
     @Override @Transactional
     public AccountView current(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof OidcUser)) {
-            return new AccountView(false, null, null, null, false, CONSENT_VERSION, null);
+            return new AccountView(false, null, null, null, false, CONSENT_VERSION, null, null, null, null);
         }
         OidcUser user = user(authentication);
         Athlete athlete = account(authentication);
+        if (athlete.state.equals("ACTIVE") && CONSENT_VERSION.equals(athlete.consentVersion))
+            syncRegistration(athlete, user);
         String name = user.getPreferredUsername();
         return new AccountView(true, athlete.id, name == null ? "Athlete" : name, athlete.state,
-                CONSENT_VERSION.equals(athlete.consentVersion), CONSENT_VERSION, athlete.consentedAt);
+                CONSENT_VERSION.equals(athlete.consentVersion), CONSENT_VERSION, athlete.consentedAt, athlete.username, athlete.firstName, athlete.lastName);
     }
 
     @Override @Transactional
@@ -67,6 +78,34 @@ class AccountService implements AthleteAccess {
         return athlete.id;
     }
 
+    private String bounded(String value, int length) {
+        if (value == null) return "";
+        String text = value.strip();
+        int end = Math.min(text.length(), length);
+        if (end > 0 && Character.isHighSurrogate(text.charAt(end - 1))) end--;
+        return text.substring(0, end);
+    }
+
+    private void syncRegistration(Athlete athlete, OidcUser user) {
+        athlete.username = bounded(user.getPreferredUsername(), 255);
+        athlete.firstName = bounded(user.getGivenName(), 255);
+        athlete.lastName = bounded(user.getFamilyName(), 255);
+        String name = bounded((athlete.firstName + " " + athlete.lastName).strip(), 80);
+        if (name.isEmpty()) name = bounded(athlete.username, 80);
+        if (name.isEmpty()) name = "Athlete";
+        if (Boolean.TRUE.equals(jdbc.queryForObject("select exists(select 1 from identity.profile where athlete_id=?)", Boolean.class, athlete.id))) return;
+        String handle = athlete.username.toLowerCase(java.util.Locale.ROOT).replaceAll("[^a-z0-9_]", "_");
+        if (handle.isEmpty() || !Character.isLetter(handle.charAt(0))) handle = "athlete_" + handle;
+        if (handle.length() < 3) handle += "_athlete";
+        handle = bounded(handle, 30);
+        for (int attempt = 0; attempt < 5; attempt++) {
+            int inserted = jdbc.update("insert into identity.profile(athlete_id, handle, display_name, bio, private_profile) values (?,?,?,'',true) on conflict do nothing", athlete.id, handle, name);
+            if (inserted == 1) return;
+            handle = "athlete_" + UUID.randomUUID().toString().replace("-", "").substring(0,22);
+        }
+        throw new ApiProblem(409, "Could not assign an athlete handle. Please retry.");
+    }
+
     @Override @Transactional
     public void consent(Authentication authentication) {
         Athlete athlete = account(authentication);
@@ -75,6 +114,7 @@ class AccountService implements AthleteAccess {
             athlete.consentVersion = CONSENT_VERSION;
             athlete.consentedAt = Instant.now();
         }
+        syncRegistration(athlete, user(authentication));
     }
 
     @Override @Transactional
@@ -84,6 +124,9 @@ class AccountService implements AthleteAccess {
         athlete.state = "DELETING";
         athlete.consentVersion = null;
         athlete.consentedAt = null;
+        athlete.username = null;
+        athlete.firstName = null;
+        athlete.lastName = null;
         return athlete.id;
     }
 

@@ -113,6 +113,52 @@
         }
       }
     },
+    "/api/v1/profile" : {
+      "get" : {
+        "tags" : [ "Profiles" ],
+        "summary" : "Your opt-in athlete profile, or an empty response before setup",
+        "operationId" : "getOwnProfile",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProfileState"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Profiles" ],
+        "summary" : "Opt in to discovery by signed-in athletes and edit your profile",
+        "operationId" : "saveProfile",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProfileInput"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProfileView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/workouts" : {
       "get" : {
         "tags" : [ "Workouts" ],
@@ -195,6 +241,34 @@
         }
       }
     },
+    "/api/v1/social/{target}/{action}" : {
+      "post" : {
+        "tags" : [ "Social" ],
+        "summary" : "Follow, unfollow, accept, remove, block or unblock an athlete",
+        "operationId" : "changeRelationship",
+        "parameters" : [ {
+          "name" : "target",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "name" : "action",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
     "/api/v1/session/consent" : {
       "post" : {
         "tags" : [ "Account" ],
@@ -207,6 +281,118 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/AccountView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workouts/{id}/visibility" : {
+      "patch" : {
+        "tags" : [ "Workouts" ],
+        "summary" : "Explicitly share a safe summary with approved followers, or make it private",
+        "operationId" : "shareWorkout",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "name" : "If-Match",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SharingInput"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/social/{kind}" : {
+      "get" : {
+        "tags" : [ "Social" ],
+        "summary" : "Your following, followers, requests, pending or blocks; 20 per page",
+        "operationId" : "listRelationships",
+        "parameters" : [ {
+          "name" : "kind",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ProfileView"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shared-activities/{id}" : {
+      "get" : {
+        "tags" : [ "Shared activities" ],
+        "summary" : "A permitted activity summary; private details are excluded",
+        "operationId" : "getSharedActivity",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SharedActivityView"
                 }
               }
             }
@@ -264,6 +450,109 @@
               "application/json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/athletes" : {
+      "get" : {
+        "tags" : [ "Social" ],
+        "summary" : "Search opt-in profiles; at most 20 results",
+        "operationId" : "searchAthletes",
+        "parameters" : [ {
+          "name" : "query",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ProfileView"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/athletes/{owner}/activities" : {
+      "get" : {
+        "tags" : [ "Shared activities" ],
+        "summary" : "Permitted follower summaries, newest first",
+        "operationId" : "listSharedActivities",
+        "parameters" : [ {
+          "name" : "owner",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 20
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SharedPage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/athletes/by-handle/{handle}" : {
+      "get" : {
+        "tags" : [ "Social" ],
+        "summary" : "View an athlete profile and your relationship",
+        "operationId" : "getAthlete",
+        "parameters" : [ {
+          "name" : "handle",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AthleteView"
                 }
               }
             }
@@ -483,6 +772,51 @@
           }
         }
       },
+      "ProfileInput" : {
+        "required" : [ "bio", "displayName", "handle", "privateProfile" ],
+        "type" : "object",
+        "properties" : {
+          "handle" : {
+            "minLength" : 1,
+            "pattern" : "[a-z][a-z0-9_]{2,29}",
+            "type" : "string"
+          },
+          "displayName" : {
+            "maxLength" : 80,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "bio" : {
+            "maxLength" : 500,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "privateProfile" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "ProfileView" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "handle" : {
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "bio" : {
+            "type" : "string"
+          },
+          "privateProfile" : {
+            "type" : "boolean"
+          }
+        }
+      },
       "AccountView" : {
         "type" : "object",
         "properties" : {
@@ -508,6 +842,25 @@
           "consentedAt" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "username" : {
+            "type" : "string"
+          },
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          }
+        }
+      },
+      "SharingInput" : {
+        "required" : [ "visibility" ],
+        "type" : "object",
+        "properties" : {
+          "visibility" : {
+            "type" : "string",
+            "enum" : [ "PRIVATE", "FOLLOWERS" ]
           }
         }
       },
@@ -535,6 +888,46 @@
           }
         }
       },
+      "SharedActivityView" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "ownerId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "sport" : {
+            "type" : "string",
+            "enum" : [ "RUN", "SWIM", "RIDE", "WORKOUT" ]
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "trainingDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "durationSeconds" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "distanceMeters" : {
+            "type" : "number"
+          },
+          "averageSpeedKph" : {
+            "type" : "number"
+          },
+          "paceSecondsPerKm" : {
+            "type" : "number"
+          },
+          "swimPaceSecondsPer100m" : {
+            "type" : "number"
+          }
+        }
+      },
       "CsrfView" : {
         "type" : "object",
         "properties" : {
@@ -546,6 +939,14 @@
           },
           "token" : {
             "type" : "string"
+          }
+        }
+      },
+      "ProfileState" : {
+        "type" : "object",
+        "properties" : {
+          "profile" : {
+            "$ref" : "#/components/schemas/ProfileView"
           }
         }
       },
@@ -565,6 +966,48 @@
         },
         "description" : "Process availability only; does not indicate database or identity-provider readiness."
       },
+      "SharedPage" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SharedActivityView"
+            }
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "AthleteView" : {
+        "type" : "object",
+        "properties" : {
+          "profile" : {
+            "$ref" : "#/components/schemas/ProfileView"
+          },
+          "relationship" : {
+            "type" : "string"
+          },
+          "followers" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "following" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
       "Export" : {
         "type" : "object",
         "properties" : {
@@ -583,6 +1026,30 @@
             "items" : {
               "$ref" : "#/components/schemas/WorkoutView"
             }
+          },
+          "profile" : {
+            "$ref" : "#/components/schemas/ProfileView"
+          },
+          "relationships" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Relationship"
+            }
+          }
+        }
+      },
+      "Relationship" : {
+        "type" : "object",
+        "properties" : {
+          "athleteId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "direction" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
           }
         }
       }

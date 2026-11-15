@@ -130,7 +130,8 @@ export function Activities() {
                   </span>
                   <h3>{item.activity.title}</h3>
                   <span className="activity-audience">
-                    <LockOutlined fontSize="inherit" /> Only you
+                    <LockOutlined fontSize="inherit" />{" "}
+                    {item.visibility === "FOLLOWERS" ? "Followers" : "Only you"}
                   </span>
                   <div className="activity-stats">
                     {distance && (

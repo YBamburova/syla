@@ -28,7 +28,7 @@ Use short-lived branches and PRs into main; squash merge, Conventional Commit ti
 
 ## Run and verify
 
-Startup commands and local URLs are in [README](../README.md). API requests from Vite and packaged nginx use the same browser origin; no permissive CORS configuration is needed. Swagger exposes schemas publicly, not athlete records. Interactive API calls still require sign-in and a CSRF token for mutations. All activity operations are owner-scoped. There is no login bypass or shared athlete password. Vite and nginx proxy `/oauth2`, `/login`, and `/logout` as well as `/api` and Swagger. Local development uses HTTP cookies only on localhost; production must set Secure cookies and hardened TLS/provider settings.
+Startup commands and local URLs are in [README](../README.md). API requests from Vite and packaged nginx use the same browser origin; no permissive CORS configuration is needed. Swagger exposes schemas publicly, not athlete records. Interactive API calls still require sign-in and a CSRF token for mutations. Full activity records and writes are owner-scoped; separate shared-summary endpoints enforce approved-follow and block rules. There is no login bypass or shared athlete password. Vite and nginx proxy `/oauth2`, `/login`, and `/logout` as well as `/api` and Swagger. Local development uses HTTP cookies only on localhost; production must set Secure cookies and hardened TLS/provider settings.
 
 From `services/core-api` (Java 21 and a running Docker engine):
 
@@ -47,7 +47,9 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-The browser tests require the API running at port 8080; Playwright starts/stops Vite itself on 5173. Do not run Compose on the same ports while using these commands. Browser tests register synthetic users through real Keycloak, consent, log all four sports, reload/verify civil dates, edit/delete activities, export, and delete accounts. Desktop runs in Los Angeles and mobile in Kyiv to exercise date handling. Screenshots go to ignored `web/test-results/`. No tests call cloud/LLM/wearable services.
+The browser tests require the API running at port 8080; Playwright starts/stops Vite itself on 5173. Do not run Compose on the same ports while using these commands. Browser tests register synthetic users through real Keycloak, consent, log all four sports, reload/verify civil dates, edit/delete activities, export, and delete accounts. A second two-athlete flow covers automatic registration profiles without manual setup, private follow approval while the recipient list is already open, explicit sharing, blocking/revocation and unblocking. Desktop runs in Los Angeles and mobile in Kyiv to exercise date handling. Screenshots go to ignored `web/test-results/`. No tests call cloud/LLM/wearable services.
+
+Social integration tests additionally cover automatic registration profiles, first/last/full-name and username discovery, unique handles, follow approval/rejection/cancellation, follower removal, safe shared DTOs, direct-ID access, sharing revisions, blocks, social export/deletion and reciprocal-request concurrency.
 
 The API suite includes deterministic unit tests plus Failsafe `*IT` tests using a real Testcontainers PostgreSQL database. It verifies the domain, persistence, units/pool metrics, owner isolation, consent/CSRF, idempotency, stale revisions, export, retryable deletion, module boundaries, Swagger, and contract drift. Identity cleanup is mocked only in the integration failure test; the full browser flow uses real Keycloak cleanup. It exports the actual OpenAPI to `services/core-api/target/openapi.json` and compares it structurally with committed `services/core-api/openapi.json`.
 
@@ -60,6 +62,8 @@ On macOS/Colima, Testcontainers may need `DOCKER_HOST=unix://$HOME/.colima/syla-
 Local verification on 2026-11-11: 14 Java tests (2 domain + 12 PostgreSQL integration), 4 frontend tests, production build, both container image builds, complete Compose startup, and two desktop/mobile browser flows through the packaged nginx/API/PostgreSQL/Keycloak stack passed. Browser coverage includes sport filtering, all four sports, reload/date preservation across Kyiv and Los Angeles zones, editing, deletion, export, and real provider account deletion.
 
 Review verification on 2026-11-15: fixed downloaded-export calendar-date serialization and preserved the original edit revision/input across background refreshes. Added a frontend regression test and actual browser-download assertions.
+
+Social slice verification on 2026-11-15: 20 Java tests (2 domain + 18 PostgreSQL integration), 10 frontend tests, production build, generated-client/contract verification, both container builds and four desktop/mobile browser flows passed locally. The existing CI commands include the new tests automatically; no new CI scripts or dependencies were added. Hosted CI for this branch has not run.
 
 For documentation changes, inspect local links/consistency and run `git diff --check`. No hosted CI result, measured logging-speed target, or human usability-study result is claimed by local verification.
 

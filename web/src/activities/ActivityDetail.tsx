@@ -54,6 +54,26 @@ export function ActivityDetail({ edit = false }: { edit?: boolean }) {
       setConfirm(false);
     },
   });
+  const sharing = useMutation({
+    mutationFn: () =>
+      workoutsApi.shareWorkout({
+        id,
+        ifMatch: `"${activity.data?.revision}"`,
+        sharingInput: {
+          visibility:
+            activity.data?.visibility === "FOLLOWERS" ? "PRIVATE" : "FOLLOWERS",
+        },
+      }),
+    onSuccess: async (item) => {
+      setFailure("");
+      client.setQueryData(["activity", id], item);
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ["activities"] }),
+        client.invalidateQueries({ queryKey: ["social"] }),
+      ]);
+    },
+    onError: async (error) => setFailure((await apiProblem(error)).message),
+  });
   if (activity.isPending)
     return (
       <div className="center-state" role="status">
@@ -133,7 +153,10 @@ export function ActivityDetail({ edit = false }: { edit?: boolean }) {
           <h1>{a.title}</h1>
           <span className="privacy-note">
             <LockOutlined fontSize="inherit" />
-            Only you · manually logged
+            {item.visibility === "FOLLOWERS"
+              ? "Approved followers · summary only"
+              : "Only you"}{" "}
+            · manually logged
           </span>
         </div>
         <Button
@@ -192,6 +215,38 @@ export function ActivityDetail({ edit = false }: { edit?: boolean }) {
             <p>{a.description}</p>
           </div>
         )}
+      </section>
+      <section className="form-card">
+        <h2>Sharing</h2>
+        <p>
+          {item.visibility === "FOLLOWERS"
+            ? "Your approved followers can see the title, sport, date, duration, distance and pace. Notes, health metrics and exact start time stay private."
+            : "This activity is private. Sharing exposes only a summary to approved followers."}
+        </p>
+        <p>
+          <Link to="/profile">Manage your athlete profile</Link> and follow
+          approval settings.
+        </p>
+        <Button
+          variant="outlined"
+          disabled={sharing.isPending}
+          onClick={() => {
+            if (
+              item.visibility !== "FOLLOWERS" &&
+              !window.confirm(
+                "Share this activity's title, sport, date, duration, distance and pace with approved followers? Notes, health metrics and exact start time stay private.",
+              )
+            )
+              return;
+            sharing.mutate();
+          }}
+        >
+          {sharing.isPending
+            ? "Updating…"
+            : item.visibility === "FOLLOWERS"
+              ? "Make private"
+              : "Share with followers"}
+        </Button>
       </section>
       {failure && <Alert severity="error">{failure}</Alert>}
       <Button

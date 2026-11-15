@@ -93,6 +93,12 @@ export function SessionGate({ children }: { children: ReactNode }) {
           effort are saved only when you add them.
         </p>
         <p>
+          Your registration name and username identify you to other signed-in
+          athletes. Your athlete profile is ready automatically, and follow
+          requests require approval by default. Workouts stay private until you
+          share them.
+        </p>
+        <p>
           You can export your records or withdraw consent and delete your
           account in Privacy &amp; data. We don’t send your activity data to AI
           or wearable providers in this feature.

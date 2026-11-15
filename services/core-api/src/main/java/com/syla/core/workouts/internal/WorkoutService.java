@@ -21,13 +21,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class WorkoutService implements WorkoutData {
     private final AthleteAccess access;
+    private final com.syla.core.identity.AthleteDirectory directory;
+    private final com.syla.core.social.SocialData social;
     private final WorkoutRepository workouts;
     private final SubmissionRepository submissions;
     private final ObjectMapper mapper;
     private final ApplicationEventPublisher events;
 
-    WorkoutService(AthleteAccess access, WorkoutRepository workouts, SubmissionRepository submissions, ObjectMapper mapper, ApplicationEventPublisher events) {
-        this.access = access; this.workouts = workouts; this.submissions = submissions; this.mapper = mapper; this.events = events;
+    WorkoutService(AthleteAccess access, WorkoutRepository workouts, SubmissionRepository submissions, ObjectMapper mapper, ApplicationEventPublisher events, com.syla.core.identity.AthleteDirectory directory, com.syla.core.social.SocialData social) {
+        this.access = access; this.workouts = workouts; this.submissions = submissions; this.mapper = mapper; this.events = events; this.directory=directory; this.social=social;
     }
 
     private String hash(byte[] input) {
@@ -94,6 +96,43 @@ class WorkoutService implements WorkoutData {
         events.publishEvent(new WorkoutChanged(owner, id, workout.revision, "DELETED"));
     }
 
+    WorkoutView share(Authentication auth, UUID id, SharingInput input, String ifMatch) {
+        UUID owner=access.lockActive(auth, true);
+        var workout=owned(id,owner);
+        revision(workout,ifMatch);
+        if (input.visibility()==SharingInput.Visibility.FOLLOWERS && directory.own(auth)==null)
+            throw new ApiProblem(409,"Create your athlete profile before sharing activities.");
+        workout.visibility=input.visibility().name();
+        workouts.flush();
+        events.publishEvent(new WorkoutChanged(owner,id,workout.revision,"UPDATED"));
+        return view(workout);
+    }
+
+    SharedActivityView.SharedPage sharedList(Authentication auth, UUID owner, int page, int size) {
+        UUID viewer=directory.actor(auth);
+        directory.lockParticipants(viewer,owner);
+        if (!social.canRead(viewer,owner)) throw new ApiProblem(404,"Activities not found.");
+        if (page<0 || size<1 || size>100) throw new ApiProblem(400,"Invalid page or size.");
+        var result=workouts.findByAthleteIdAndVisibility(owner,"FOLLOWERS",PageRequest.of(page,size,Sort.by(Sort.Order.desc("trainingDate"),Sort.Order.desc("id"))));
+        return new SharedActivityView.SharedPage(result.stream().map(this::sharedView).toList(),result.getTotalElements(),page,size);
+    }
+
+    SharedActivityView sharedGet(Authentication auth, UUID id) {
+        UUID viewer=directory.actor(auth);
+        // Lock before the final read so revocation/deletion and sharing changes serialize with it.
+        UUID owner=workouts.ownerOf(id).orElseThrow(() -> new ApiProblem(404,"Activity not found."));
+        directory.lockParticipants(viewer,owner);
+        var workout=workouts.findById(id).orElseThrow(() -> new ApiProblem(404,"Activity not found."));
+        if (!workout.visibility.equals("FOLLOWERS") || !social.canRead(viewer,owner)) throw new ApiProblem(404,"Activity not found.");
+        return sharedView(workout);
+    }
+
+    private SharedActivityView sharedView(Workout workout) {
+        var summary=view(workout);
+        return new SharedActivityView(workout.id,workout.athleteId,workout.sport,workout.title,workout.trainingDate,
+                workout.durationSeconds,summary.distanceMeters(),summary.averageSpeedKph(),summary.paceSecondsPerKm(),summary.swimPaceSecondsPer100m());
+    }
+
     private void revision(Workout workout, String value) {
         if (value == null) throw new ApiProblem(428, "Reload the activity before changing it.");
         if (!value.equals("\"" + workout.revision + "\"")) throw new ApiProblem(409, "This activity changed elsewhere. Reload it before saving; your entered values have been kept.");
@@ -106,7 +145,7 @@ class WorkoutService implements WorkoutData {
         BigDecimal speed = distance == null ? null : ActivityRules.ratio(distance.multiply(new BigDecimal("3.6")), BigDecimal.valueOf(seconds));
         BigDecimal pace = distance == null ? null : ActivityRules.ratio(BigDecimal.valueOf(seconds * 1000L), distance);
         return new WorkoutView(workout.id, workout.revision, input, workout.createdAt, distance, speed, pace,
-                pace == null ? null : pace.movePointLeft(1), "PRIVATE");
+                pace == null ? null : pace.movePointLeft(1), workout.visibility);
     }
 
     @Override public List<WorkoutView> export(Authentication auth) {
