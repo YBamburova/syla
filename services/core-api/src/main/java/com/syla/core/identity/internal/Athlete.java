@@ -13,5 +13,8 @@ class Athlete {
     @Column(name = "consent_version") String consentVersion;
     @Column(name = "consented_at") Instant consentedAt;
     @Column(name = "deleted_at") Instant deletedAt;
+    String username;
+    @Column(name = "first_name") String firstName;
+    @Column(name = "last_name") String lastName;
     protected Athlete() {}
 }

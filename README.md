@@ -2,7 +2,7 @@
 
 Syla (Сила, “strength”) is a Strava-like social training network for CrossFit athletes and gym people: log meaningful workouts, track progress, and connect with other athletes.
 
-**Status:** private manual running, swimming, cycling, and general workout logging, with Keycloak sign-in, PostgreSQL persistence, editing/deletion, data export, and account deletion. CrossFit-specific formats and social features come later.
+**Status:** private manual running, swimming, cycling, and general workout logging, with Keycloak sign-in, PostgreSQL persistence, editing/deletion, data export, and account deletion. Automatic athlete profiles, search, follow approvals, blocking, and explicit follower-only activity summaries are implemented. The following feed and CrossFit-specific formats come later.
 
 ## Documentation
 
@@ -38,7 +38,7 @@ Start the stack with `docker compose up --build` (or `docker-compose` for a stan
 - OpenAPI JSON: http://localhost:8080/v3/api-docs
 - Keycloak: http://localhost:8081
 
-Use `localhost` consistently: the OIDC callback is registered for this origin. Activities remain private, with no GPS tracking or fabricated device metrics. Data is stored in the PostgreSQL named volume and survives service restarts. Do not delete that volume to reset a build.
+Use `localhost` consistently: the OIDC callback is registered for this origin. Activities start private; an athlete can explicitly share a limited summary with approved followers. Notes and health metrics remain private. There is no GPS tracking or fabricated device metrics. Data is stored in the PostgreSQL named volume and survives service restarts. Do not delete that volume to reset a build.
 
 For source development, start only the dependencies:
 

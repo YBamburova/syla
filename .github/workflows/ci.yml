@@ -67,7 +67,7 @@ jobs:
       - name: Install browser
         working-directory: web
         run: npx playwright install --with-deps chromium
-      - name: Test browser against real API
+      - name: Test logging and social browser flows against real API
         run: |
           set -a
           . ./.env

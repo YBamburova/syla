@@ -392,7 +392,10 @@ export function ActivityForm({ item: suppliedItem }: { item?: WorkoutView }) {
           <p>Start with the basics. Add as much detail as you like.</p>
         </div>
         <span className="privacy-note">
-          <LockOutlined fontSize="inherit" /> Private · only you
+          <LockOutlined fontSize="inherit" />{" "}
+          {item?.visibility === "FOLLOWERS"
+            ? "Followers · summary only"
+            : "Private · only you"}
         </span>
       </div>
       <form
@@ -633,7 +636,10 @@ export function ActivityForm({ item: suppliedItem }: { item?: WorkoutView }) {
           </section>
           <div className="entry-summary" aria-live="polite">
             <span>
-              <LockOutlined fontSize="inherit" /> Only you
+              <LockOutlined fontSize="inherit" />{" "}
+              {item?.visibility === "FOLLOWERS"
+                ? "Followers · summary only"
+                : "Only you"}
             </span>
             {rawDistance > 0 && endurance && (
               <span>

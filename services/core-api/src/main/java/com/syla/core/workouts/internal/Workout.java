@@ -20,6 +20,7 @@ class Workout {
     @Column(name = "time_zone") String timeZone;
     @Column(name = "duration_seconds") int durationSeconds;
     @JdbcTypeCode(SqlTypes.JSON) ActivityInput.Metrics metrics;
+    String visibility = "PRIVATE";
     Integer effort;
     String description;
     @Column(name = "created_at") Instant createdAt;

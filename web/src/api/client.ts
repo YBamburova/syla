@@ -1,5 +1,8 @@
 import {
   AccountApi,
+  ProfilesApi,
+  SocialApi,
+  SharedActivitiesApi,
   Configuration,
   PrivacyApi,
   ResponseError,
@@ -46,10 +49,11 @@ const config = new Configuration({
 export const accountApi = new AccountApi(config);
 export const workoutsApi = new WorkoutsApi(config);
 export const privacyApi = new PrivacyApi(config);
+export const profilesApi = new ProfilesApi(config);
+export const socialApi = new SocialApi(config);
+export const sharedActivitiesApi = new SharedActivitiesApi(config);
 
-export async function apiProblem(
-  error: unknown,
-): Promise<{
+export async function apiProblem(error: unknown): Promise<{
   message: string;
   fields: Record<string, string>;
   status?: number;

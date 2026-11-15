@@ -7,6 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 interface WorkoutRepository extends JpaRepository<Workout, UUID> {
+    @org.springframework.data.jpa.repository.Query("select w.athleteId from Workout w where w.id = :id")
+    Optional<UUID> ownerOf(@org.springframework.data.repository.query.Param("id") UUID id);
+    Page<Workout> findByAthleteIdAndVisibility(UUID athleteId, String visibility, Pageable pageable);
     Optional<Workout> findByIdAndAthleteId(UUID id, UUID athleteId);
     Page<Workout> findByAthleteId(UUID athleteId, Pageable pageable);
     Page<Workout> findByAthleteIdAndSport(UUID athleteId, Sport sport, Pageable pageable);

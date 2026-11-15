@@ -24,6 +24,11 @@ import {
     PageToJSON,
 } from '../models/Page';
 import {
+    type SharingInput,
+    SharingInputFromJSON,
+    SharingInputToJSON,
+} from '../models/SharingInput';
+import {
     type WorkoutView,
     WorkoutViewFromJSON,
     WorkoutViewToJSON,
@@ -71,6 +76,21 @@ export interface ListWorkoutsRequest {
      * 
      */
     size?: number;
+}
+
+export interface ShareWorkoutRequest {
+    /**
+     * 
+     */
+    id: string;
+    /**
+     * 
+     */
+    sharingInput: SharingInput;
+    /**
+     * 
+     */
+    ifMatch?: string;
 }
 
 export interface UpdateWorkoutRequest {
@@ -290,6 +310,65 @@ export class WorkoutsApi extends runtime.BaseAPI {
      */
     async listWorkouts(requestParameters: ListWorkoutsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Page> {
         const response = await this.listWorkoutsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for shareWorkout without sending the request
+     */
+    async shareWorkoutRequestOpts(requestParameters: ShareWorkoutRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['id'] == null) {
+            throw new runtime.RequiredError(
+                'id',
+                'Required parameter "id" was null or undefined when calling shareWorkout().'
+            );
+        }
+
+        if (requestParameters['sharingInput'] == null) {
+            throw new runtime.RequiredError(
+                'sharingInput',
+                'Required parameter "sharingInput" was null or undefined when calling shareWorkout().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['ifMatch'] != null) {
+            headerParameters['If-Match'] = String(requestParameters['ifMatch']);
+        }
+
+
+        let urlPath = `/api/v1/workouts/{id}/visibility`;
+        urlPath = urlPath.replace('{id}', encodeURIComponent(String(requestParameters['id'])));
+
+        return {
+            path: urlPath,
+            method: 'PATCH',
+            headers: headerParameters,
+            query: queryParameters,
+            body: SharingInputToJSON(requestParameters['sharingInput']),
+        };
+    }
+
+    /**
+     * Explicitly share a safe summary with approved followers, or make it private
+     */
+    async shareWorkoutRaw(requestParameters: ShareWorkoutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<WorkoutView>> {
+        const requestOptions = await this.shareWorkoutRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => WorkoutViewFromJSON(jsonValue));
+    }
+
+    /**
+     * Explicitly share a safe summary with approved followers, or make it private
+     */
+    async shareWorkout(requestParameters: ShareWorkoutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<WorkoutView> {
+        const response = await this.shareWorkoutRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

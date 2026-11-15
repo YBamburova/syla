@@ -2,6 +2,7 @@ package com.syla.core.privacy.internal;
 
 import com.syla.core.identity.*;
 import com.syla.core.workouts.*;
+import com.syla.core.social.SocialData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,17 +20,19 @@ class PrivacyController {
     private final AthleteAccess access;
     private final WorkoutData workouts;
     private final IdentityLifecycle lifecycle;
+    private final AthleteDirectory directory;
+    private final SocialData social;
 
-    PrivacyController(AthleteAccess access, WorkoutData workouts, IdentityLifecycle lifecycle) {
-        this.access = access; this.workouts = workouts; this.lifecycle = lifecycle;
+    PrivacyController(AthleteAccess access, WorkoutData workouts, IdentityLifecycle lifecycle, AthleteDirectory directory, SocialData social) {
+        this.access = access; this.workouts = workouts; this.lifecycle = lifecycle; this.directory=directory; this.social=social;
     }
 
-    record Export(String schemaVersion, Instant exportedAt, AccountView account, List<WorkoutView> activities) {}
+    record Export(String schemaVersion, Instant exportedAt, AccountView account, List<WorkoutView> activities, ProfileView profile, List<SocialData.Relationship> relationships) {}
 
     @GetMapping("/export")
     @Operation(operationId = "exportAccount", summary = "Export your stored profile/consent and private activities as JSON")
     ResponseEntity<Export> export(Authentication auth) {
-        var result = new Export("1", Instant.now(), access.current(auth), workouts.export(auth));
+        var result = new Export("2", Instant.now(), access.current(auth), workouts.export(auth), directory.own(auth), social.export(access.activeId(auth)));
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=syla-export.json").body(result);
     }
@@ -40,6 +43,8 @@ class PrivacyController {
     void delete(Authentication auth, HttpServletRequest request) {
         var owner = access.beginDeletion(auth);
         workouts.deleteAllForAccount(owner);
+        social.deleteAllForAccount(owner);
+        directory.deleteProfile(owner);
         lifecycle.deleteProviderAccount(auth);
         access.completeDeletion(auth);
         var session = request.getSession(false);
