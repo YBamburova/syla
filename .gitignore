@@ -35,3 +35,8 @@ Thumbs.db
 # Local ignore files
 .dockerignore
 .gitignore
+
+# Browser test output and generator metadata
+playwright-report/
+test-results/
+.openapi-generator/

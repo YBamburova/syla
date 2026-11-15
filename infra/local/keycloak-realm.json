@@ -1,0 +1,60 @@
+{
+  "realm": "syla",
+  "enabled": true,
+  "displayName": "Syla \u00b7 your training, together",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": false,
+  "verifyEmail": false,
+  "resetPasswordAllowed": false,
+  "passwordPolicy": "length(12)",
+  "sslRequired": "none",
+  "clients": [
+    {
+      "clientId": "syla-web",
+      "name": "Syla",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "http://localhost:5173/login/oauth2/code/keycloak",
+        "http://127.0.0.1:5173/login/oauth2/code/keycloak"
+      ],
+      "webOrigins": [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:5173##http://127.0.0.1:5173"
+      }
+    },
+    {
+      "clientId": "syla-lifecycle",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "${SYLA_LIFECYCLE_SECRET}",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "defaultClientScopes": [
+        "roles",
+        "basic",
+        "service_account",
+        "kc-admin-api"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "service-account-syla-lifecycle",
+      "enabled": true,
+      "serviceAccountClientId": "syla-lifecycle",
+      "clientRoles": {
+        "realm-management": [
+          "manage-users"
+        ]
+      }
+    }
+  ]
+}

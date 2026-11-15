@@ -1,4 +1,4 @@
-// Target architecture; services are not implemented yet.
+// Target architecture beyond the current API/web foundation; domain services and integrations remain planned.
 workspace "Syla" "Social training platform for CrossFit and functional athletes." {
 
     !identifiers hierarchical
