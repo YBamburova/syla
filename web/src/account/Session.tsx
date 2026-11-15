@@ -13,6 +13,10 @@ import { accountApi, apiProblem } from "../api/client";
 const SessionContext = createContext<AccountView | null>(null);
 export const useSession = () => useContext(SessionContext);
 
+function LinkBrand() {
+  return <span className="wordmark">Syla</span>;
+}
+
 export function SessionGate({ children }: { children: ReactNode }) {
   const client = useQueryClient();
   const session = useQuery({
@@ -47,16 +51,12 @@ export function SessionGate({ children }: { children: ReactNode }) {
   if (!session.data.authenticated)
     return (
       <div className="welcome-screen">
-        <p className="eyebrow">YOUR EFFORT. YOUR PEOPLE.</p>
-        <h1>
-          Every session
-          <br />
-          is a step forward.
-        </h1>
+        <LinkBrand />
+        <h1>Your training, in one place.</h1>
         <p>
-          Runs, rides, swims, and everything in between.
+          Log runs, swims, rides, and workouts.
           <br />
-          Keep the details that matter. See your training come together.
+          Keep a private record of your training.
         </p>
         <Button
           variant="contained"
@@ -74,10 +74,6 @@ export function SessionGate({ children }: { children: ReactNode }) {
             Sign-in did not finish. Please try again.
           </Alert>
         )}
-        <div className="welcome-sports">
-          RUNNING <span>↗</span> SWIMMING <span>↗</span> CYCLING <span>↗</span>{" "}
-          WORKOUTS
-        </div>
       </div>
     );
   if (session.data.state !== "ACTIVE")
@@ -89,7 +85,7 @@ export function SessionGate({ children }: { children: ReactNode }) {
   if (!session.data.consented)
     return (
       <section className="consent-card">
-        <p className="eyebrow">BEFORE YOUR FIRST ACTIVITY</p>
+        <p className="eyebrow">Training data consent</p>
         <h1>Your training. Your choice.</h1>
         <p>
           Syla stores the activities you enter so you can keep a private

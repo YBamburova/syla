@@ -29,7 +29,7 @@ async function registerAthlete(page: Page) {
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Continue to my activities" }).click();
   await expect(
-    page.getByRole("heading", { name: "Every session counts." }),
+    page.getByRole("heading", { name: "Activities", exact: true }),
   ).toBeVisible();
 }
 
@@ -38,6 +38,14 @@ test("logs all four sports, reloads, edits, exports, and deletes through real au
 }, testInfo) => {
   test.setTimeout(120_000);
   await registerAthlete(page);
+  const checkLayout = async () => {
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+  };
+  await checkLayout();
   const scenarios = [
     { sport: "Running", title: "Morning 5K" },
     { sport: "Swimming", title: "Pool technique" },
@@ -81,6 +89,7 @@ test("logs all four sports, reloads, edits, exports, and deletes through real au
         path: testInfo.outputPath("logging-form.png"),
         fullPage: true,
       });
+    await checkLayout();
     const enteredDate = await page
       .getByLabel("Date", { exact: true })
       .inputValue();
@@ -111,11 +120,15 @@ test("logs all four sports, reloads, edits, exports, and deletes through real au
     page.getByRole("link", { name: /Pool technique/ }),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: /Morning 5K/ })).toHaveCount(0);
-  await page
-    .getByRole("button", { name: "All activities", exact: true })
-    .click();
+  await page.getByRole("button", { name: "All", exact: true }).click();
   await expect(page.getByRole("link", { name: /Morning 5K/ })).toBeVisible();
+  await checkLayout();
   await page.getByRole("link", { name: /Morning 5K/ }).click();
+  await page.screenshot({
+    path: testInfo.outputPath("activity-detail.png"),
+    fullPage: true,
+  });
+  await checkLayout();
   await page.getByRole("link", { name: "Edit activity" }).click();
   await page
     .getByRole("textbox", { name: "Activity title (optional)" })
@@ -132,12 +145,17 @@ test("logs all four sports, reloads, edits, exports, and deletes through real au
     .getByRole("button", { name: "Delete activity", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Every session counts." }),
+    page.getByRole("heading", { name: "Activities", exact: true }),
   ).toBeVisible();
   const exportResponse = await page.request.get("/api/v1/account/export");
   expect(exportResponse.ok()).toBe(true);
   expect((await exportResponse.json()).activities).toHaveLength(3);
   await page.getByRole("link", { name: "Privacy & data" }).click();
+  await page.screenshot({
+    path: testInfo.outputPath("privacy.png"),
+    fullPage: true,
+  });
+  await checkLayout();
   const downloadReady = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export my data" }).click();
   const download = await downloadReady;
