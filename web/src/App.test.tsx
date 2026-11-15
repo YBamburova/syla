@@ -116,9 +116,7 @@ describe("activity logging", () => {
     expect(create.mock.calls[0][0].idempotencyKey).toBe(
       create.mock.calls[1][0].idempotencyKey,
     );
-    expect(
-      await screen.findByText("Activity saved. Your effort is in the journal."),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Activity saved.")).toBeInTheDocument();
   });
   it("guards against discarding an unsaved activity", async () => {
     const user = userEvent.setup();
@@ -139,19 +137,17 @@ describe("activity logging", () => {
   });
   it("keeps an open edit and its original revision when the server record refreshes", async () => {
     const user = userEvent.setup();
-    const update = vi
-      .spyOn(workoutsApi, "updateWorkout")
-      .mockRejectedValue(
-        new ResponseError(
-          new Response(
-            JSON.stringify({
-              detail: "Activity changed elsewhere",
-              errors: {},
-            }),
-            { status: 409 },
-          ),
+    const update = vi.spyOn(workoutsApi, "updateWorkout").mockRejectedValue(
+      new ResponseError(
+        new Response(
+          JSON.stringify({
+            detail: "Activity changed elsewhere",
+            errors: {},
+          }),
+          { status: 409 },
         ),
-      );
+      ),
+    );
     const { client } = renderApp(`/activities/${activity.id}/edit`);
     const title = await screen.findByRole("textbox", {
       name: "Activity title (optional)",

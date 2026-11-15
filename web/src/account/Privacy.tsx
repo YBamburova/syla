@@ -65,9 +65,8 @@ export function Privacy() {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">YOU ARE IN CONTROL</p>
           <h1>Privacy &amp; data</h1>
-          <p>Your training is personal. Keep control of it.</p>
+          <p>Manage your training data and account.</p>
         </div>
         <LockOutlined />
       </div>
@@ -79,16 +78,15 @@ export function Privacy() {
         </Alert>
       )}
       <section className="form-card privacy-card">
-        <h2>Private from the start.</h2>
+        <h2>Activity privacy</h2>
         <p>
           Only you can see your activity records. Heart rate, energy, effort,
           and equipment details are optional. There is no public feed or
           location tracking in this release.
         </p>
-        <p>Your records are stored by the Syla API, not in browser storage.</p>
       </section>
       <section className="form-card privacy-card">
-        <h2>Take your training with you.</h2>
+        <h2>Export your data</h2>
         <p>
           Download your activities, entered metrics, account identifier, and
           recorded consent in a machine-readable JSON file.

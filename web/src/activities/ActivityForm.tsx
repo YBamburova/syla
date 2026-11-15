@@ -388,7 +388,6 @@ export function ActivityForm({ item: suppliedItem }: { item?: WorkoutView }) {
       </Link>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">MAKE YOUR EFFORT COUNT</p>
           <h1>{item ? "Edit activity" : "Log an activity"}</h1>
           <p>Start with the basics. Add as much detail as you like.</p>
         </div>
@@ -404,7 +403,6 @@ export function ActivityForm({ item: suppliedItem }: { item?: WorkoutView }) {
         <div className="form-main">
           <section className="form-card">
             <div className="card-section-title">
-              <span>01</span>
               <h2>What did you do?</h2>
             </div>
             <fieldset className="sport-picker" aria-label="Activity type">
@@ -479,7 +477,6 @@ export function ActivityForm({ item: suppliedItem }: { item?: WorkoutView }) {
           </section>
           <section className="form-card">
             <div className="card-section-title">
-              <span>02</span>
               <h2>The essentials</h2>
             </div>
             <div className="form-row">
@@ -634,6 +631,23 @@ export function ActivityForm({ item: suppliedItem }: { item?: WorkoutView }) {
               </>
             )}
           </section>
+          <div className="entry-summary" aria-live="polite">
+            <span>
+              <LockOutlined fontSize="inherit" /> Only you
+            </span>
+            {rawDistance > 0 && endurance && (
+              <span>
+                {rawDistance.toLocaleString()} {unit.toLowerCase()}
+              </span>
+            )}
+            {seconds > 0 && <span>{duration(seconds)}</span>}
+            {livePace && (
+              <span>
+                {livePace}
+                {moving ? " · moving" : ""}
+              </span>
+            )}
+          </div>
           <Accordion className="details-accordion" defaultExpanded={!!item}>
             <AccordionSummary expandIcon={<ExpandMore />}>
               <div>
@@ -837,47 +851,6 @@ export function ActivityForm({ item: suppliedItem }: { item?: WorkoutView }) {
             </Button>
           </div>
         </div>
-        <aside className="activity-preview">
-          <span
-            className={`sport-badge ${sports.find((s) => s.value === v.sport)?.color}`}
-          >
-            <SportIcon sport={v.sport} />
-          </span>
-          <p className="eyebrow">YOUR ACTIVITY AT A GLANCE</p>
-          <h2>{v.title || sports.find((s) => s.value === v.sport)?.noun}</h2>
-          <p>{v.date}</p>
-          <div className="preview-stat">
-            <span>Total duration</span>
-            <strong>{seconds > 0 ? duration(seconds) : "Not entered"}</strong>
-          </div>
-          {endurance && (
-            <div className="preview-stat">
-              <span>Distance</span>
-              <strong>
-                {rawDistance > 0
-                  ? `${rawDistance.toLocaleString()} ${unit.toLowerCase()}`
-                  : "Not entered"}
-              </strong>
-            </div>
-          )}
-          {livePace && (
-            <div className="preview-stat">
-              <span>
-                {v.sport === "RIDE" ? "Average speed" : "Average pace"}
-                {moving ? " · moving" : ""}
-              </span>
-              <strong>{livePace}</strong>
-            </div>
-          )}
-          <div className="preview-privacy">
-            <LockOutlined fontSize="small" />
-            <span>
-              Only you can see this activity.
-              <br />
-              You can edit or delete it later.
-            </span>
-          </div>
-        </aside>
       </form>
       <Dialog open={blocker.state === "blocked"}>
         <DialogTitle>Discard this activity entry?</DialogTitle>

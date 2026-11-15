@@ -17,6 +17,12 @@ The interface starts with sport, date, optional local start time, duration, and 
 
 After this slice, revisit CrossFit logging, reviewed AI input, shared gym training, progress, social interactions, and Oura. Agree the next small slice in an issue or PR; no milestone documents or feature-spec folders are required.
 
+## Interface direction
+
+Use a white base, charcoal text, neutral sport icons, and pulse red (`#E32636`) for primary actions and selected navigation. Keep typography readable, corners modest, and spacing consistent. The activity journal uses flat rows with light separators; avoid motivational banners, decorative dashboards, and nested cards. The responsive top navigation exposes only implemented destinations.
+
+Logging uses a single column with sport-specific inputs, a compact calculated summary, and optional metrics under More details. Keep labels visible, show units, preserve unsaved-entry and retry protections, and keep privacy explicit. Manual logging remains the primary path. Future social and AI features must fit this visual language without crowding the training task.
+
 ## Later and outside the first release
 
 Coaching dashboards, coach-approved AI programming, verified gym owners, payments, challenges, MCP access, other wearables, and native mobile apps come later. Start with a responsive web app. GPS recording/maps and medical advice are outside the initial scope. Revenue ideas (coach/gym subscriptions and a marketplace) remain hypotheses.

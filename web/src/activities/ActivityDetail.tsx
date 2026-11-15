@@ -122,7 +122,7 @@ export function ActivityDetail({ edit = false }: { edit?: boolean }) {
       </Link>
       {location.state?.saved && (
         <Alert severity="success" className="saved-alert">
-          Activity saved. Your effort is in the journal.
+          Activity saved.
         </Alert>
       )}
       <div className="page-heading">

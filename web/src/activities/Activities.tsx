@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Add from "@mui/icons-material/Add";
-import ArrowForward from "@mui/icons-material/ArrowForward";
 import LockOutlined from "@mui/icons-material/LockOutlined";
 import { Alert, Button, CircularProgress } from "@mui/material";
 import { workoutsApi } from "../api/client";
@@ -30,9 +29,7 @@ export function Activities() {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">YOUR TRAINING JOURNAL</p>
-          <h1>Every session counts.</h1>
-          <p>The big efforts. The easy days. All your work, in one place.</p>
+          <h1>Activities</h1>
         </div>
         <Button
           component={Link}
@@ -43,25 +40,6 @@ export function Activities() {
           Log activity
         </Button>
       </div>
-      <div className="journal-banner">
-        <div>
-          <span className="banner-kicker">KEEP SHOWING UP</span>
-          <h2>A little progress, every day.</h2>
-          <p>You don’t need a watch or a perfect session to keep a record.</p>
-        </div>
-        <span className="banner-arrow" aria-hidden="true">
-          ↗
-        </span>
-      </div>
-      <div className="list-heading">
-        <h2>
-          Your activities{" "}
-          <span>{activities.data ? `(${activities.data.total})` : ""}</span>
-        </h2>
-        <span className="privacy-note">
-          <LockOutlined fontSize="inherit" /> Only you
-        </span>
-      </div>
       <div className="sport-filters" aria-label="Filter activities by sport">
         <button
           className={!sport ? "active" : ""}
@@ -71,7 +49,7 @@ export function Activities() {
             setPage(0);
           }}
         >
-          All activities
+          All
         </button>
         {sports.map((item) => (
           <button
@@ -83,7 +61,6 @@ export function Activities() {
               setPage(0);
             }}
           >
-            <SportIcon sport={item.value} />
             {item.label}
           </button>
         ))}
@@ -152,6 +129,9 @@ export function Activities() {
                     {dateLabel(item.activity.trainingDate)}
                   </span>
                   <h3>{item.activity.title}</h3>
+                  <span className="activity-audience">
+                    <LockOutlined fontSize="inherit" /> Only you
+                  </span>
                   <div className="activity-stats">
                     {distance && (
                       <div>
@@ -181,7 +161,6 @@ export function Activities() {
                     )}
                   </div>
                 </div>
-                <ArrowForward className="card-arrow" />
               </Link>
             );
           })}
