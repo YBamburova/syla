@@ -11,9 +11,11 @@ Syla (Сила, “strength”) is a social training network for CrossFit athlet
 - Publish a reviewed gym class once so members can log their own result with “I was there.”
 - Show optional wearable recovery data next to training, starting with Oura.
 
-The first usable slice is private manual logging: sign in, save a strength/AMRAP/For Time workout, view history, edit, and delete. Initial defaults approved on 2026-11-04: one section per workout, optional unscored logging, and today/past training dates. Include ownership checks, applicable consent, export, and account deletion. This is a starting slice, not the complete social product.
+The current first slice, requested on 2026-11-11, is private manual logging for **running, swimming, cycling, and general workouts**. An athlete signs in, consents, records an activity, reloads history, edits/deletes it, exports data, and can delete the account. It captures sport-relevant metrics without inventing GPS tracks or device data. CrossFit-specific strength/AMRAP/For Time logging is deferred until this foundation is reviewed; the earlier conceptual examples remain in [workouts](workouts.md).
 
-Then add reviewed AI logging, shared gym training, progress, social interactions, and Oura. This is the previously agreed delivery order, not a fixed release schedule. Agree the next small slice in an issue or PR; no milestone documents or feature-spec folders are required. EMOM, Tabata, and mixed sessions remain intended MVP scope; detailed rules are open where noted in [workouts](workouts.md).
+The interface starts with sport, date, optional local start time, duration, and optional distance. Extra metrics appear under More details. Running uses pace, cycling speed, and swimming pace per 100 meters/yards. Pool swimming can use pool length × lengths swum. Missing data stays missing; generic workouts do not require distance.
+
+After this slice, revisit CrossFit logging, reviewed AI input, shared gym training, progress, social interactions, and Oura. Agree the next small slice in an issue or PR; no milestone documents or feature-spec folders are required.
 
 ## Later and outside the first release
 

@@ -1,3 +1,37 @@
+# Manual activity logging
+
+Current slice: running (`RUN`), swimming (`SWIM`), cycling (`RIDE`), and general training (`WORKOUT`). Requested by the user on 2026-11-11; CrossFit formats below are deferred. All current activities are private and manually entered, with no GPS recording, maps, imports, photos, public feed, or automatic device estimates.
+
+## Fields and calculations
+
+| Area | Data |
+|---|---|
+| Every activity | Sport; optional title (120 characters, otherwise sport name); today/past training date; optional local start time; explicit IANA time zone; total duration (1 second–7 days); optional notes (5,000 characters) and perceived effort (1–10) |
+| Running | Outdoor/treadmill setting; optional distance in km/mi/m, moving time, outdoor elevation, cadence in steps/min, equipment |
+| Cycling | Outdoor/indoor setting; optional distance, moving time, outdoor elevation, cadence in rpm, average power in watts, equipment |
+| Swimming | Pool/open-water setting; optional distance in m/yd/km/mi, moving time, stroke; pool-only length in m/yd and count of one-way lengths |
+| Optional metrics | Entered average/max heart rate in bpm, energy in kcal, equipment text; no inferred health values |
+| Derived | Canonical distance in meters; run pace per km/mi; cycling speed in km/h or mph; swim pace per 100 m/yd. Use entered moving time when present; otherwise total duration. No distance means no pace/speed. |
+
+Preserve entered amounts/units. One mile is 1609.344 m; one yard is 0.9144 m. Pool distance can be supplied directly or calculated from length × lengths; if both are supplied they must match within 0.01 m. A length is one trip across the pool, not a round trip. Moving time cannot exceed total duration, max heart rate cannot be below average, and sport-incompatible fields are rejected. Date/time remain civil values in their stated zone; they are not shifted through a viewer's UTC offset. Nonexistent daylight-saving local times are rejected; an overlapping local time is retained as entered, without claiming a unique UTC start instant.
+
+## Behavior and verification
+
+- Sign in via Keycloak OIDC. Record purpose/version/timestamp consent before storing training data. Owner identity comes from the session; requests cannot choose another athlete.
+- Create uses a UUID `Idempotency-Key`. Same key/content returns the same activity; changed content conflicts. A retry after deletion returns 410 and cannot recreate the deleted record. Submission hashes (no raw request) remain until account deletion.
+- List is owner-scoped, paginated, and optionally sport-filtered. Details, export, edit, and deletion enforce the same ownership. Unknown and non-owned IDs both return 404.
+- Replace/delete require quoted revision `If-Match`; stale revisions return 409. An open edit keeps its original revision and unsaved values when background queries refresh. Concurrent account deletion blocks new changes before cleanup. Internal change events carry IDs/revision only; there are no speculative downstream consumers.
+- Connection/server failures retain unsaved input in memory, with retry and duplicate-submit protection. Session expiry opens sign-in in a separate tab so the form can remain open. Unsaved navigation/reload is guarded. No browser draft persistence: closing the page still loses the entry.
+- Export includes the stored account/consent and activity slice. Account deletion withdraws consent, blocks mutations, deletes workouts/submission hashes, deletes the provider account, and invalidates the current session. Provider cleanup failures stay blocked and retryable. A hash-based identity barrier contains no workout/name and expires 24–25 hours after completion, outliving the 12-hour absolute app session.
+
+Acceptance: all four sports save/reload with original units and civil date; pool/pace calculations are deterministic; invalid combinations fail with field errors; two athletes cannot read/change/export each other's records; retries do not duplicate; edits/deletes handle stale revisions; export/deletion work. Verification uses domain tests, real PostgreSQL integration tests, and desktop/mobile browser flows through real Keycloak. No logging-speed or user-usability target has been measured yet.
+
+## UX research used
+
+[Strava manual activities](https://support.strava.com/en-us/articles/15402188-how-do-i-upload-a-manual-activity-to-strava) supports a simple manual sport/time/distance entry path without GPS. [Strava activity privacy](https://support.strava.com/en-us/articles/15401987-how-do-my-activity-privacy-controls-work-on-strava) treats audience as activity-level control; this slice deliberately exposes only private records. [Garmin pool-swim modeling](https://developer.garmin.com/fit/articles/cookbook/decoding_activity_files.html) distinguishes pool lengths and total swim distance. [Nielsen Norman Group form guidance](https://www.nngroup.com/articles/4-principles-reduce-cognitive-load/) supports grouping, clear optional labels, and progressive disclosure. Our design applies these patterns; it is not a copy of Strava or evidence from user testing.
+
+---
+
 # Workout domain model
 
 Status: Conceptual model endorsed by the user on 2026-11-04, based on the five [validated examples](#agreed-workout-examples). Explicitly unresolved choices in section 9 remain open for the logging specification. This document defines concepts and intended invariants, not a database schema, accepted ADR, or final API contract.
@@ -101,7 +135,7 @@ Follow ADR-0004: relational fields for stable identities, ownership, dates, form
 
 Core domain types should make invalid result combinations impossible. OpenAPI owns the API contract; generated clients and Python boundary schemas must align with it. This conceptual model is not a reason to hand-copy service contracts or create all future tables now.
 
-## 9. Next decisions and first-slice recommendation
+## 9. Earlier CrossFit slice proposal (deferred)
 
 Approved M1 format boundary: strength, AMRAP, and For Time, initially one section per saved session. W1–W3 supply the examples; detailed completed/capped validation remains in the draft specification. Keep the conceptual section boundary so W5 can extend it in M2. Tabata and mixed sessions join M2 as already planned; EMOM requires its own validated example. The full MVP scope is unchanged.
 
@@ -202,4 +236,4 @@ Expected capture: one session with independently scored sections. Part B retains
 | Units and interval aggregation | W4 |
 | Multiple sections and partial participation | W5 |
 
-EMOM is still MVP scope but has no validated example yet. These five examples are a starting fixture set, not the parser's full evaluation dataset. Validation errors, date/time behavior, kg/lb conversion, benchmark equivalence, ties, and interval-level data still need feature specifications. The first slice supports strength, AMRAP, and For Time.
+EMOM is still MVP scope but has no validated example yet. These five examples are a starting fixture set, not the parser's full evaluation dataset. Validation errors, date/time behavior, kg/lb conversion, benchmark equivalence, ties, and interval-level data still need feature specifications. The earlier CrossFit proposal supported strength, AMRAP, and For Time; the current first slice is the manual multi-sport flow above.

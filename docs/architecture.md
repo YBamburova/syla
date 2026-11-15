@@ -1,10 +1,10 @@
 # Architecture
 
-This is the intended architecture. No application source/build or Compose configuration is tracked yet. The existing [C4 workspace](c4/workspace.dsl) is a target view, not a deployment inventory. Reasons and decision history live in the [decision table](decisions.md).
+The Java core and React frontend implement private manual running/swimming/cycling/general workout logs, Keycloak OIDC sessions, recorded consent, PostgreSQL/Flyway persistence, owner-scoped CRUD, export, and retryable account deletion. OpenAPI generates the TypeScript client. The [C4 workspace](c4/workspace.dsl) remains the broader target; AI, broker workflows, CrossFit formats, social feeds, and wearables are not implemented. Reasons and history live in the [decision table](decisions.md).
 
 ## Components and ownership
 
-| Component | Responsibility | Planned technology |
+| Component | Responsibility | Technology / target |
 |---|---|---|
 | Core API | Sole writer of domain data; authorization and transactions | Java 21, Spring Boot, Spring Modulith, Maven |
 | Web | Responsive social and training UI | React, strict TypeScript, Vite |
@@ -13,6 +13,8 @@ This is the intended architecture. No application source/build or Compose config
 | Identity provider | OIDC credentials and provider identities | Keycloak; isolated provider database/user |
 | Broker | Cross-service asynchronous work when implemented | RabbitMQ with transactional outbox |
 | MCP (later) | Permissioned reads through the core API | TypeScript, Node.js |
+
+The frontend stays in `web/` in the same GitHub repository as `services/core-api`, as already selected in decisions 0003/0013. This keeps contract and UI changes in one review. Java DTOs generate the OpenAPI schema through springdoc; OpenAPI Generator creates the TypeScript client. Persistence entities stay internal and separate from transport DTOs. The implemented modules are `identity`, `workouts`, `privacy`, and `platform`. Account and workout schemas have no cross-module foreign keys. Stable workout identity/owner/date/sport/duration fields are relational; optional sport metrics use validated JSONB. A locked account row serializes mutations with deletion and duplicate submissions.
 
 ## Core boundaries
 
@@ -24,7 +26,7 @@ Only the core saves confirmed domain changes. Python never writes domain data. H
 
 Use Keycloak OIDC Authorization Code + PKCE through Spring Security in the core. Map `(issuer, subject)` to an athlete, never email. Tokens stay server-side. Web uses a same-origin, HttpOnly, host-only session cookie (Secure over HTTPS), CSRF protection, state/nonce checks, session rotation, and validated redirect destinations. Start with in-memory core sessions: restart requires login, not loss of workout data. Initial defaults are 30-minute idle / 12-hour absolute lifetime. API expiry returns JSON 401; failed CSRF returns 403. Logout clears core sessions and private UI state and integrates provider logout. Verify issuer/callback routing from browser and containers.
 
-Enforce ownership and audience rules in the core. Authentication is separate from consent. Support export and retryable account deletion across implemented modules and the identity provider. Block mutations before cleanup; concurrent requests, delayed jobs, or a stale provider session must not restore/reprovision a deleted account. Registration, provider revocation, deletion/re-registration retention, and production identity configuration still need concrete implementation decisions.
+Enforce ownership and audience rules in the core. Authentication is separate from consent. Support export and retryable account deletion across implemented modules and the identity provider. Block mutations before cleanup; concurrent requests, delayed jobs, or a stale provider session must not restore/reprovision a deleted account. Local registration is hosted by Keycloak; email verification/delivery is disabled only in the local realm. Provider account deletion uses a server-side management client. Successful deletion retains only a hash-based identity blocker for 24–25 hours to outlive all 12-hour app sessions, then purges it. Production identity hardening and provider-session revocation behavior still require review before real users.
 
 No secrets, tokens, workout payloads, or health values in logs/traces. Minimize identifiers. Whiteboard photos are resized to about 1600 px, JPEG-compressed, and stripped of EXIF in the browser; process in memory and discard everywhere. Never persist or log images. Save only reviewed structured data. Permissioned, de-identified evaluation fixtures are separate from production data.
 

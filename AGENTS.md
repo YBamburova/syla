@@ -11,4 +11,4 @@ Syla is a social training network for CrossFit athletes and gym people. Read [RE
 - Never commit unless asked, never push to main, and never perform destructive Git operations without explicit authorization. Leave unrelated local changes untouched.
 - Do not add speculative frameworks, infrastructure, custom skills, or agents. Use subagents only when the user asks for delegation/parallel work.
 
-No application source/build is tracked yet. Do not claim planned commands, tests, or services work. CI is a minimal GitHub workflow; wire actual tests in when adding code.
+The Java API and React frontend foundation exist. Use the commands in docs/development.md. Private running/swimming/cycling/general workout logging, PostgreSQL persistence, and Keycloak login exist. CrossFit formats, AI, social features, and wearables remain planned; do not claim they work. Update real CI checks alongside new application behavior. Generated TypeScript files come from the core OpenAPI contract; never edit them by hand.

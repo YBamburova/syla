@@ -1,0 +1,591 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Syla Core API",
+    "description" : "Private manual activity logging. Sign in through OIDC, consent, and send the session CSRF token for mutations.",
+    "version" : "v1"
+  },
+  "servers" : [ {
+    "url" : "/"
+  } ],
+  "tags" : [ {
+    "name" : "Workouts",
+    "description" : "Private manual running, swimming, cycling, and general workout logs"
+  }, {
+    "name" : "Platform",
+    "description" : "Public service availability"
+  } ],
+  "paths" : {
+    "/api/v1/workouts/{id}" : {
+      "get" : {
+        "tags" : [ "Workouts" ],
+        "summary" : "Read one owned activity",
+        "operationId" : "getWorkout",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Workouts" ],
+        "summary" : "Replace an activity using its quoted revision in If-Match",
+        "operationId" : "updateWorkout",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "name" : "If-Match",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ActivityInput"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Workouts" ],
+        "summary" : "Delete an owned activity using its quoted revision in If-Match",
+        "operationId" : "deleteWorkout",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }, {
+          "name" : "If-Match",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/v1/workouts" : {
+      "get" : {
+        "tags" : [ "Workouts" ],
+        "summary" : "List your activities, newest training date first",
+        "operationId" : "listWorkouts",
+        "parameters" : [ {
+          "name" : "sport",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "RUN", "SWIM", "RIDE", "WORKOUT" ]
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 20
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Page"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Workouts" ],
+        "summary" : "Save a private activity; retry with the same UUID idempotency key",
+        "operationId" : "createWorkout",
+        "parameters" : [ {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ActivityInput"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkoutView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/session/consent" : {
+      "post" : {
+        "tags" : [ "Account" ],
+        "summary" : "Consent to storing training details for logging and personal history",
+        "operationId" : "acceptConsent",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccountView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/session" : {
+      "get" : {
+        "tags" : [ "Account" ],
+        "summary" : "Read sign-in and training consent state",
+        "operationId" : "getSession",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccountView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/session/csrf" : {
+      "get" : {
+        "tags" : [ "Account" ],
+        "summary" : "Get a session-bound CSRF token before mutations",
+        "operationId" : "getCsrf",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CsrfView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health" : {
+      "get" : {
+        "tags" : [ "Platform" ],
+        "summary" : "Check whether the API process is responding",
+        "operationId" : "getHealth",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account/export" : {
+      "get" : {
+        "tags" : [ "Privacy" ],
+        "summary" : "Export your stored profile/consent and private activities as JSON",
+        "operationId" : "exportAccount",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Export"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/account" : {
+      "delete" : {
+        "tags" : [ "Privacy" ],
+        "summary" : "Withdraw training consent, block mutations, delete training data and provider identity; retry on provider failures",
+        "operationId" : "deleteAccount",
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "ActivityInput" : {
+        "required" : [ "durationSeconds", "metrics", "sport", "timeZone", "trainingDate" ],
+        "type" : "object",
+        "properties" : {
+          "sport" : {
+            "type" : "string",
+            "enum" : [ "RUN", "SWIM", "RIDE", "WORKOUT" ]
+          },
+          "title" : {
+            "maxLength" : 120,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "trainingDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "startTime" : {
+            "type" : "string",
+            "format" : "time-local"
+          },
+          "timeZone" : {
+            "maxLength" : 80,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "durationSeconds" : {
+            "maximum" : 604800,
+            "minimum" : 1,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "metrics" : {
+            "$ref" : "#/components/schemas/Metrics"
+          },
+          "effort" : {
+            "maximum" : 10,
+            "minimum" : 1,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "description" : {
+            "maxLength" : 5000,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        }
+      },
+      "Metrics" : {
+        "required" : [ "venue" ],
+        "type" : "object",
+        "properties" : {
+          "venue" : {
+            "type" : "string",
+            "enum" : [ "OUTDOOR", "INDOOR", "POOL", "OPEN_WATER" ]
+          },
+          "distance" : {
+            "maximum" : 1000000,
+            "exclusiveMaximum" : false,
+            "minimum" : 0.001,
+            "exclusiveMinimum" : false,
+            "type" : "number"
+          },
+          "distanceUnit" : {
+            "type" : "string",
+            "enum" : [ "KM", "MI", "M", "YD" ]
+          },
+          "movingSeconds" : {
+            "maximum" : 604800,
+            "minimum" : 1,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "elevationGain" : {
+            "maximum" : 100000,
+            "exclusiveMaximum" : false,
+            "minimum" : 0,
+            "exclusiveMinimum" : false,
+            "type" : "number"
+          },
+          "elevationUnit" : {
+            "type" : "string",
+            "enum" : [ "M", "FT" ]
+          },
+          "averageHeartRate" : {
+            "maximum" : 300,
+            "minimum" : 1,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "maxHeartRate" : {
+            "maximum" : 300,
+            "minimum" : 1,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "calories" : {
+            "maximum" : 100000,
+            "minimum" : 1,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "cadence" : {
+            "maximum" : 300,
+            "minimum" : 1,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "averagePower" : {
+            "maximum" : 3000,
+            "minimum" : 1,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "poolLength" : {
+            "maximum" : 200,
+            "exclusiveMaximum" : false,
+            "minimum" : 1,
+            "exclusiveMinimum" : false,
+            "type" : "number"
+          },
+          "poolLengthUnit" : {
+            "type" : "string",
+            "enum" : [ "KM", "MI", "M", "YD" ]
+          },
+          "lengths" : {
+            "maximum" : 100000,
+            "minimum" : 1,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "stroke" : {
+            "type" : "string",
+            "enum" : [ "FREESTYLE", "BREASTSTROKE", "BACKSTROKE", "BUTTERFLY", "MIXED", "OTHER" ]
+          },
+          "gear" : {
+            "maxLength" : 120,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        }
+      },
+      "WorkoutView" : {
+        "required" : [ "activity", "createdAt", "id", "revision", "visibility" ],
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "revision" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "activity" : {
+            "$ref" : "#/components/schemas/ActivityInput"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "distanceMeters" : {
+            "type" : "number"
+          },
+          "averageSpeedKph" : {
+            "type" : "number"
+          },
+          "paceSecondsPerKm" : {
+            "type" : "number"
+          },
+          "swimPaceSecondsPer100m" : {
+            "type" : "number"
+          },
+          "visibility" : {
+            "type" : "string"
+          }
+        }
+      },
+      "AccountView" : {
+        "type" : "object",
+        "properties" : {
+          "authenticated" : {
+            "type" : "boolean"
+          },
+          "athleteId" : {
+            "type" : "string",
+            "format" : "uuid"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "state" : {
+            "type" : "string"
+          },
+          "consented" : {
+            "type" : "boolean"
+          },
+          "consentVersion" : {
+            "type" : "string"
+          },
+          "consentedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "Page" : {
+        "required" : [ "items", "page", "size", "total" ],
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/WorkoutView"
+            }
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "CsrfView" : {
+        "type" : "object",
+        "properties" : {
+          "headerName" : {
+            "type" : "string"
+          },
+          "parameterName" : {
+            "type" : "string"
+          },
+          "token" : {
+            "type" : "string"
+          }
+        }
+      },
+      "HealthResponse" : {
+        "required" : [ "service", "status" ],
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "example" : "UP",
+            "enum" : [ "UP" ]
+          },
+          "service" : {
+            "type" : "string",
+            "example" : "syla-core-api"
+          }
+        },
+        "description" : "Process availability only; does not indicate database or identity-provider readiness."
+      },
+      "Export" : {
+        "type" : "object",
+        "properties" : {
+          "schemaVersion" : {
+            "type" : "string"
+          },
+          "exportedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "account" : {
+            "$ref" : "#/components/schemas/AccountView"
+          },
+          "activities" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/WorkoutView"
+            }
+          }
+        }
+      }
+    }
+  }
+}
